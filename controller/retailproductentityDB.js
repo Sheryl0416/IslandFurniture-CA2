@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
 let middleware = require('./middleware');
-var multer  = require('multer');
+var multer = require('multer');
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, './view/img/products/')
@@ -73,7 +73,7 @@ app.post('/api/addRetailProduct', upload.single('imgfile'), function (req, res) 
     };
     product.addRetailProduct(data)
         .then((result) => {
-            if(result.success) {
+            if (result.success) {
                 res.redirect('/A6/retailProductManagement_Add.html?goodMsg=Retail Product with SKU "' + result.sku + '" has been created successfully.')
             }
         })
@@ -99,7 +99,7 @@ app.post('/api/updateRetailProduct', upload.single('imgfile'), function (req, re
     var name = req.body.name;
     var category = req.body.category;
     var description = req.body.description;
-    
+
     var data = {
         id: id,
         name: name,
@@ -108,7 +108,7 @@ app.post('/api/updateRetailProduct', upload.single('imgfile'), function (req, re
     };
     product.updateRetailProduct(data)
         .then((result) => {
-            if(result) {
+            if (result) {
                 res.redirect('/A6/retailProductManagement.html?goodMsg=Retail Product updated successfully.')
             }
         })
@@ -119,5 +119,3 @@ app.post('/api/updateRetailProduct', upload.single('imgfile'), function (req, re
 });
 
 module.exports = app;
-
-//changed
