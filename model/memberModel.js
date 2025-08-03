@@ -8,43 +8,47 @@ let jwt = require('jsonwebtoken');
 let config = require('./config');
 var memberDB = {
     checkMemberLogin: function (email, password) {
-        return new Promise( ( resolve, reject ) => {
+        return new Promise((resolve, reject) => {
             var conn = db.getConnection();
             conn.connect(function (err) {
                 if (err) {
                     console.log(err);
                     conn.end();
                     return reject(err);
-                }
-                else {
+                } else {
                     var sql = 'SELECT * FROM memberentity m WHERE m.EMAIL=?';
-                    conn.query( sql, [email], (err, result) => {
-                        if (err){
+                    conn.query(sql, [email], (err, result) => {
+                        if (err) {
                             conn.end();
                             return reject(err);
-                        }
-                        else {
-                            if(result == null || result == undefined || result == '') {
+                        } else {
+                            if (!result || result.length === 0) {
                                 conn.end();
-                                return resolve({success:false});
+                                return resolve({ success: false });
                             }
+    
                             var member = new Member();
                             member.email = result[0].EMAIL;
                             member.passwordHash = result[0].PASSWORDHASH;
-
-                            bcrypt.compare(password, member.passwordHash, function(err, res) {
-                                if(res) {
-                                    var token = jwt.sign({username: member.email},
+    
+                            // ✅ Check if account is activated (ACCOUNTACTIVATIONSTATUS must be 1)
+                            if (result[0].ACCOUNTACTIVATIONSTATUS != 1) {
+                                conn.end();
+                                return resolve({ success: false, errorMsg: 'Account is not activated.' });
+                            }
+    
+                            bcrypt.compare(password, member.passwordHash, function (err, res) {
+                                if (res) {
+                                    var token = jwt.sign(
+                                        { username: member.email },
                                         config.secret,
-                                        { 
-                                            expiresIn: '12h'
-                                        }
+                                        { expiresIn: '12h' }
                                     );
                                     conn.end();
-                                    return resolve({success:true, email:member.email, token: token});
+                                    return resolve({ success: true, email: member.email, token: token });
                                 } else {
                                     conn.end();
-                                    return resolve({success:false});
+                                    return resolve({ success: false });
                                 }
                             });
                         }
@@ -53,6 +57,7 @@ var memberDB = {
             });
         });
     },
+    
     getMemberAuthState: function (email) {
         return new Promise( ( resolve, reject ) => {
             var conn = db.getConnection();
@@ -80,53 +85,58 @@ var memberDB = {
         });
     },
     getMember: function (email) {
-        return new Promise( ( resolve, reject ) => {
+        return new Promise((resolve, reject) => {
             var conn = db.getConnection();
             conn.connect(function (err) {
                 if (err) {
                     console.log(err);
                     conn.end();
                     return reject(err);
-                }
-                else {
+                } else {
                     var sql = 'SELECT * FROM memberentity m WHERE m.EMAIL=?';
                     conn.query(sql, [email], function (err, result) {
                         if (err) {
                             conn.end();
                             return reject(err);
-                        } else {
-                            var member = new Member();
-                            member.id = result[0].ID;
-                            member.dob = result[0].DOB;
-                            member.accountActivationStatus = result[0].ACCOUNTACTIVATIONSTATUS;
-                            member.accountLockStatus = result[0].ACCOUNTLOCKSTATUS;
-                            member.activationCode = result[0].ACTIVATIONCODE;
-                            member.address = result[0].ADDRESS;
-                            member.age = result[0].AGE;
-                            member.city = result[0].CITY;
-                            member.cumulativeSpending = result[0].CUMULATIVESPENDING;
-                            member.email = result[0].EMAIL;
-                            member.income = result[0].INCOME;
-                            member.isDeleted = result[0].ISDELETED;
-                            member.joinDate = result[0].JOINDATE;
-                            member.loyaltyCardId = result[0].LOYALTYCARDID;
-                            member.loyaltyPoints = result[0].LOYALTYPOINTS;
-                            member.name = result[0].NAME;
-                            member.occupation = result[0].OCCUPATION;
-                            member.passwordHash = result[0].PASSWORDHASH;
-                            member.passwordReset = result[0].PASSWORDRESET;
-                            member.phone = result[0].PHONE;
-                            member.securityAnswer = result[0].SECURITYANSWER;
-                            member.securityQuestion = result[0].SECURITYQUESTION;
-                            member.sla = result[0].SERVICELEVELAGREEMENT;
-                            member.zipcode = result[0].ZIPCODE;
-                            member.loyaltyTierId = result[0].LOYALTYTIER_ID;
-                            member.countryId = result[0].COUNTRY_ID;
-                            member.wishlistId = result[0].WISHLIST_ID;
-                            member.stripeCustomerId = result[0].STRIPECUSTOMERID;
+                        } else if (!result || result.length === 0) {
                             conn.end();
-                            return resolve(member);
+                            return resolve(null); // No such member
                         }
+    
+                        var row = result[0]; // 🧠 result is valid
+                        var member = new Member();
+    
+                        member.id = row.ID;
+                        member.dob = row.DOB;
+                        member.accountActivationStatus = row.ACCOUNTACTIVATIONSTATUS;
+                        member.accountLockStatus = row.ACCOUNTLOCKSTATUS;
+                        member.activationCode = row.ACTIVATIONCODE;
+                        member.address = row.ADDRESS;
+                        member.age = row.AGE;
+                        member.city = row.CITY;
+                        member.cumulativeSpending = row.CUMULATIVESPENDING;
+                        member.email = row.EMAIL;
+                        member.income = row.INCOME;
+                        member.isDeleted = row.ISDELETED;
+                        member.joinDate = row.JOINDATE;
+                        member.loyaltyCardId = row.LOYALTYCARDID;
+                        member.loyaltyPoints = row.LOYALTYPOINTS;
+                        member.name = row.NAME;
+                        member.occupation = row.OCCUPATION;
+                        member.passwordHash = row.PASSWORDHASH;
+                        member.passwordReset = row.PASSWORDRESET;
+                        member.phone = row.PHONE;
+                        member.securityAnswer = row.SECURITYANSWER;
+                        member.securityQuestion = row.SECURITYQUESTION;
+                        member.sla = row.SERVICELEVELAGREEMENT;
+                        member.zipcode = row.ZIPCODE;
+                        member.loyaltyTierId = row.LOYALTYTIER_ID;
+                        member.country = row.CITY;
+                        member.wishlistId = row.WISHLIST_ID;
+                        member.stripeCustomerId = row.STRIPECUSTOMERID;
+    
+                        conn.end();
+                        return resolve(member);
                     });
                 }
             });
@@ -222,8 +232,8 @@ var memberDB = {
                         var activationCode = generateRandomNumber(40);
                         var passwordReset = generateRandomNumber(40);
                         var sqlArgs = [activationCode, email, new Date(), hash, passwordReset];
-                        var sql = 'INSERT INTO memberentity(ACTIVATIONCODE,EMAIL,JOINDATE,PASSWORDHASH,PASSWORDRESET,LOYALTYTIER_ID)'
-                            + 'values(?,?,?,?,?,15)';
+                        var sql = 'INSERT INTO memberentity(ACTIVATIONCODE,EMAIL,JOINDATE,PASSWORDHASH,PASSWORDRESET,LOYALTYTIER_ID, ACCOUNTACTIVATIONSTATUS) values(?,?,?,?,?,15,1)';
+
                         conn.query(sql, sqlArgs, function (err, result) {
                             if (err) {
                                 conn.end();
@@ -306,64 +316,106 @@ var memberDB = {
         });
     },
     updateMember: function (details) {
-        return new Promise( ( resolve, reject ) => {
+        return new Promise((resolve, reject) => {
+            console.log("📥 updateMember received data:", details); // DEBUG
+    
             var conn = db.getConnection();
             conn.connect(function (err) {
                 if (err) {
-                    console.log(err);
+                    console.log("❌ DB connection error:", err);
                     conn.end();
                     return reject(err);
                 }
-                else {
-                    var email = details.email;
-                    var name = details.name;
-                    var phone = details.phone;
-                    var country = details.country;
-                    var address = details.address;
-                    var securityQuestion = details.securityQuestion;
-                    var securityAnswer = details.securityAnswer;
-                    var age = details.age;
-                    var income = details.income;
-                    var sla = details.sla;
-                    var password = details.password;
-                    if(password == null || password == '') {
-                        var sql = 'UPDATE memberentity SET NAME=?, PHONE=?, CITY=?, ADDRESS=?, SECURITYQUESTION=?,'
-                        + 'SECURITYANSWER=?, AGE=?, INCOME=?, SERVICELEVELAGREEMENT=? WHERE EMAIL=?';
-                        var sqlArgs = [name,phone,country,address,securityQuestion,securityAnswer,age,income,sla,email];
+    
+                // Extract all fields from details
+                var email = details.email;
+                var name = details.name;
+                var phone = details.phone;
+                var country = details.country;
+                var address = details.address;
+                var securityQuestion = parseInt(details.securityQuestion);
+                var securityAnswer = details.securityAnswer;
+                var age = parseInt(details.age);
+                var income = parseInt(details.income);
+                var sla = parseInt(details.sla);
+                var password = details.password;
+    
+                const fetchUpdatedMember = () => {
+                    var getSql = 'SELECT * FROM memberentity WHERE EMAIL = ?';
+                    conn.query(getSql, [email], function (err, result) {
+                        conn.end();
+                        if (err) {
+                            console.log("❌ Failed to fetch updated member:", err);
+                            return reject(err);
+                        }
+                        if (result.length === 0) {
+                            console.log("❌ No member found after update.");
+                            return reject({ error: "No member found after update." });
+                        }
+    
+                        console.log("✅ Member successfully updated.");
+                        return resolve({ success: true, updatedMember: result[0] });
+                    });
+                };
+    
+                // Update without password
+                if (!password || password.trim() === '') {
+                    var sql = `UPDATE memberentity SET NAME=?, PHONE=?, CITY=?, ADDRESS=?, SECURITYQUESTION=?,
+                               SECURITYANSWER=?, AGE=?, INCOME=?, SERVICELEVELAGREEMENT=? WHERE EMAIL=?`;
+                    var sqlArgs = [name, phone, country, address, securityQuestion, securityAnswer, age, income, sla, email];
+    
+                    conn.query(sql, sqlArgs, function (err, result) {
+                        if (err) {
+                            console.log("❌ SQL update error (no password):", err);
+                            conn.end();
+                            return reject(err);
+                        }
+    
+                        console.log("📤 SQL result (no password):", result);
+    
+                        if (result.affectedRows > 0) {
+                            fetchUpdatedMember();
+                        } else {
+                            conn.end();
+                            return reject(new Error("No member record updated (no password)"));
+                        }
+                    });
+    
+                } else {
+                    // Update with password
+                    bcrypt.hash(password, 5, function (err, hash) {
+                        if (err) {
+                            console.log("❌ bcrypt error:", err);
+                            conn.end();
+                            return reject(err);
+                        }
+    
+                        var sql = `UPDATE memberentity SET NAME=?, PHONE=?, CITY=?, ADDRESS=?, SECURITYQUESTION=?,
+                                   SECURITYANSWER=?, AGE=?, INCOME=?, SERVICELEVELAGREEMENT=?, PASSWORDHASH=? WHERE EMAIL=?`;
+                        var sqlArgs = [name, phone, country, address, securityQuestion, securityAnswer, age, income, sla, hash, email];
+    
                         conn.query(sql, sqlArgs, function (err, result) {
                             if (err) {
+                                console.log("❌ SQL update error (with password):", err);
                                 conn.end();
                                 return reject(err);
+                            }
+    
+                            console.log("📤 SQL result (with password):", result);
+    
+                            if (result.affectedRows > 0) {
+                                fetchUpdatedMember();
                             } else {
-                                if(result.affectedRows > 0) {
-                                    conn.end();
-                                    return resolve({success:true});
-                                }
+                                conn.end();
+                                return reject(new Error("No member record updated (with password)"));
                             }
                         });
-                    }
-                    else {
-                        bcrypt.hash(password, 5, function(err, hash) {
-                            var sql = 'UPDATE memberentity SET NAME=?, PHONE=?, CITY=?, ADDRESS=?, SECURITYQUESTION=?,'
-                                + 'SECURITYANSWER=?, AGE=?, INCOME=?, SERVICELEVELAGREEMENT=?, PASSWORDHASH=? WHERE EMAIL=?';
-                            var sqlArgs = [name,phone,country,address,securityQuestion,securityAnswer,age,income,sla,hash,email];
-                            conn.query(sql, sqlArgs, function (err, result) {
-                                if (err) {
-                                    conn.end();
-                                    return reject(err);
-                                } else {
-                                    if(result.affectedRows > 0) {
-                                        conn.end();
-                                        return resolve({success:true});
-                                    }
-                                }
-                            });
-                        });
-                    }
+                    });
                 }
             });
         });
     },
+    
     sendPasswordResetCode: function (email, url) {
         return new Promise( ( resolve, reject ) => {
             var conn = db.getConnection();

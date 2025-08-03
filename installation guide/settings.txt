@@ -1,5 +1,0 @@
-{
-    "HostConfig": {
-        "Memory": 524288000
-    }
-}
