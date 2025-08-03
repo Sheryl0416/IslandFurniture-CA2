@@ -1,18 +1,19 @@
-<script src="../checkCountry.js" ></script>
+<script src="../checkCountry.js"></script>
 <html>
-    <script src="../../header.js"></script>
-    <link rel="stylesheet" href="/pretty-checkbox/dist/pretty-checkbox.min.css" />
-    <body>
-        <script src="https://js.stripe.com/v3/"></script>
-        <script>
-            var authToken = null;
-            var countryPrefix = localStorage.getItem('urlPrefix');
-            //get token from session
-            authToken = sessionStorage.getItem('token');
-            if (authToken == null || authToken == "") {
-                window.location.href = '/B/' + countryPrefix + '/memberLogin.html';
-            }
-            fetch(new Request('/api/checkToken',
+<script src="../../header.js"></script>
+<link rel="stylesheet" href="/pretty-checkbox/dist/pretty-checkbox.min.css" />
+
+<body>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        var authToken = null;
+        var countryPrefix = localStorage.getItem('urlPrefix');
+        //get token from session
+        authToken = sessionStorage.getItem('token');
+        if (authToken == null || authToken == "") {
+            window.location.href = '/B/' + countryPrefix + '/memberLogin.html';
+        }
+        fetch(new Request('/api/checkToken',
             {
                 method: 'GET',
                 headers: {
@@ -21,32 +22,32 @@
             })).then(function (response) {
                 return response.json();
             }).then(function (data) {
-                if(!data.success) {
+                if (!data.success) {
                     window.location.href = '/B/' + countryPrefix + '/memberLogin.html';
                 }
             }).catch(function (error) {
                 console.log(error);
             });
-            
-            var member = null;
-            var memberEmail = null;
-            var qtyValid = true;
-            var shoppingCart = JSON.parse(sessionStorage.getItem('shoppingCart'));
-            var finalPrice = 0;
-            var stripeCustomer = null;
-            var cardId = null;
-            document.addEventListener('DOMContentLoaded', function(){
-                memberEmail = sessionStorage.getItem('memberEmail');
-                //disable checkout button is shopping cart is empty
-                if(shoppingCart == null || shoppingCart == '') {
-                    document.getElementById('btmDiv').innerHTML = '<div align="right" style="cursor: not-allowed;"><a><button disabled="true" class="btn btn-primary btn-lg">Check Out</button></a></div>';
-                }
-                else {
-                    var htmlTxt = '';
-                    for(i = 0; i < shoppingCart.length; i++) {
-                        var cartItem = shoppingCart[i];
-                        //generate html for cart items
-                        htmlTxt += '\
+
+        var member = null;
+        var memberEmail = null;
+        var qtyValid = true;
+        var shoppingCart = JSON.parse(sessionStorage.getItem('shoppingCart'));
+        var finalPrice = 0;
+        var stripeCustomer = null;
+        var cardId = null;
+        document.addEventListener('DOMContentLoaded', function () {
+            memberEmail = sessionStorage.getItem('memberEmail');
+            //disable checkout button is shopping cart is empty
+            if (shoppingCart == null || shoppingCart == '') {
+                document.getElementById('btmDiv').innerHTML = '<div align="right" style="cursor: not-allowed;"><a><button disabled="true" class="btn btn-primary btn-lg">Check Out</button></a></div>';
+            }
+            else {
+                var htmlTxt = '';
+                for (i = 0; i < shoppingCart.length; i++) {
+                    var cartItem = shoppingCart[i];
+                    //generate html for cart items
+                    htmlTxt += '\
                             <tr class="cart_table_item">\
                                 <td class="product-remove">\
                                     <input type="checkbox" name="delete" value="' + cartItem.sku + '" />\
@@ -75,10 +76,10 @@
                                     $<span class="amount">' + cartItem.quantity * cartItem.price + '.00</span>\
                                 </td>\
                             </tr>';
-                        finalPrice += cartItem.quantity * cartItem.price;
-                    }
-                    htmlTxt += 
-                        '<tr>\
+                    finalPrice += cartItem.quantity * cartItem.price;
+                }
+                htmlTxt +=
+                    '<tr>\
                             <td></td>\
                             <td></td>\
                             <td></td>\
@@ -90,12 +91,12 @@
                                 </span>\
                             </td>\
                         </tr>';
-                    document.getElementById('cartBody').innerHTML = htmlTxt;
-                    document.getElementById('btmDiv').innerHTML = '<div align="left"><a href="#myModal" data-toggle="modal"><button id="btnRemove" class="btn btn-primary">Remove Item(s)</button></a></div>\
+                document.getElementById('cartBody').innerHTML = htmlTxt;
+                document.getElementById('btmDiv').innerHTML = '<div align="left"><a href="#myModal" data-toggle="modal"><button id="btnRemove" class="btn btn-primary">Remove Item(s)</button></a></div>\
                         <div align="right"><a href="#checkoutModal" data-toggle="modal"><button id="btnCheckout" class="btn btn-primary btn-lg">Check Out</button></a></div>';
-                }
+            }
 
-                fetch(new Request('/api/getStripeCustomer?email=' + memberEmail,
+            fetch(new Request('/api/getStripeCustomer?email=' + memberEmail,
                 {
                     method: 'GET',
                     headers: {
@@ -105,12 +106,12 @@
                     return response.json();
                 }).then(function (data) {
                     var htmlTxt = '';
-                    if(data.success) {
+                    if (data.success) {
                         stripeCustomer = data.customer;
                         var cards = data.customer.sources.data;
-                        for(i = 0; i < cards.length; i++) {
+                        for (i = 0; i < cards.length; i++) {
                             var card = cards[i];
-                            switch(card.brand) {
+                            switch (card.brand) {
                                 case "Visa":
                                     htmlTxt += '<span style="padding-right: 10px;"><i class="fab fa-cc-visa fa-2x"></i></span>';
                                     break;
@@ -133,7 +134,7 @@
                                     htmlTxt += '<span style="padding-right: 10px;"><i class="fas fa-credit-card fa-2x"></i></span>';
                                     break;
                             }
-                            
+
                             htmlTxt += '\
                                 <div class="pretty p-icon p-round" style="vertical-align: super;width: 80%;" onclick="showCardDiv(false)">\
                                     <input type="radio" name="icon_solid" value="' + card.id + '" />\
@@ -161,155 +162,155 @@
                         </div>\
                         <span style="padding-right:13.51px"></span>';
                     document.getElementById('chooseCardDiv').innerHTML = htmlTxt;
-                }).catch(function(error) {
+                }).catch(function (error) {
                     console.log(error);
                 });
 
-                var stripe = Stripe('pk_test_VmXIT1btdiAeYAFhGQuUPVgU');
-                var elements = stripe.elements();
-                var style = {
-                    base: {
-                        color: '#32325d',
-                        fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
-                        fontSmoothing: 'antialiased',
-                        fontSize: '16px',
-                        '::placeholder': {
-                            color: '#aab7c4'
-                        }
-                    },
-                    invalid: {
-                        color: '#fa755a',
-                        iconColor: '#fa755a'
-                    },
-                    complete: {
-                        color: '#45bc42',
-                        iconColor: '#45bc42'
+            var stripe = Stripe('pk_test_VmXIT1btdiAeYAFhGQuUPVgU');
+            var elements = stripe.elements();
+            var style = {
+                base: {
+                    color: '#32325d',
+                    fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+                    fontSmoothing: 'antialiased',
+                    fontSize: '16px',
+                    '::placeholder': {
+                        color: '#aab7c4'
                     }
-                };
-                var card = elements.create('card', {style: style, hidePostalCode:true});
-                card.mount('#card-element');
-                card.addEventListener('change', function(event) {
+                },
+                invalid: {
+                    color: '#fa755a',
+                    iconColor: '#fa755a'
+                },
+                complete: {
+                    color: '#45bc42',
+                    iconColor: '#45bc42'
+                }
+            };
+            var card = elements.create('card', { style: style, hidePostalCode: true });
+            card.mount('#card-element');
+            card.addEventListener('change', function (event) {
                 var displayError = document.getElementById('card-errors');
-                    if (event.error) {
-                        displayError.textContent = event.error.message;
-                    } else {
-                        displayError.textContent = '';
-                    }
-                });
-
-                member = JSON.parse(sessionStorage.getItem('member'));
-                document.getElementById('txtName').value = member.name;
-                document.getElementById('txtContact').value = member.phone;
-                document.getElementById('txtAddress').value = member.address;
-                document.getElementById('txtPostalCode').value = member.zipcode;
-
-                document.getElementById("makePayment").addEventListener('click', function(){
-                    var cardRadio = document.getElementsByName('icon_solid');
-                    var cardValue = null;
-                    for (i = 0; i < cardRadio.length; i++) {
-                        if (cardRadio[i].checked) {
-                            cardValue = cardRadio[i].value;       
-                        }
-                    }
-                    var name = document.getElementById('txtName').value;
-                    var contactNum = document.getElementById('txtContact').value;
-                    var address = document.getElementById('txtAddress').value;
-                    var postalCode = document.getElementById('txtPostalCode').value;
-                    var deliveryDate = document.getElementById('deliveryDate').innerHTML;
-                    
-                    if(document.getElementById('deliveryForm').checkValidity()) {
-                        var paymentData = {
-                            memberId: member.id,
-                            email: memberEmail,
-                            price: finalPrice,
-                            shoppingCart: shoppingCart,
-                            name: name,
-                            phone: contactNum,
-                            address: address,
-                            postalCode: postalCode,
-                            deliveryDate: deliveryDate
-                        };
-                        
-                        if(cardValue == "add") {
-                            stripe.createToken(card).then(function(result) {
-                                if (result.error) {
-                                    var errorElement = document.getElementById('card-errors');
-                                    errorElement.textContent = result.error.message;
-                                } else {
-                                    paymentData.token = result.token;
-                                    paymentData.saveCard = document.getElementById('saveCard').checked;
-                                    processPaymentNewCard(paymentData);
-                                }
-                            });
-                        }
-                        else {
-                            
-                            paymentData.customerId = stripeCustomer.id;
-                            paymentData.cardId = cardValue;
-                            processPaymentExistingCard(paymentData);
-                        }
-                    }
-                });
-
-                document.getElementById('deliveryDate').innerHTML = addWorkDays(5);
-            }, false);
-
-            function removeItem() {
-                checkboxes = document.getElementsByName('delete');
-                var skuList = [];
-                var numOfTicks = 0;
-                //add SKU of item to remove to an array
-                for (i = 0, n = checkboxes.length; i < n; i++) {
-                    if (checkboxes[i].checked) {
-                        numOfTicks++;
-                        skuList.push(checkboxes[i].value);
-                    }
-                }
-                if (checkboxes.length == 0 || numOfTicks == 0) {
-                    window.location.href = '/B/' + countryPrefix + '/shoppingCart.html?errMsg=No item(s) selected for deletion.';
+                if (event.error) {
+                    displayError.textContent = event.error.message;
                 } else {
-                    //remove selected items from shopping cart
-                    for(i = 0; i < shoppingCart.length; i++) {
-                        var cartItem = shoppingCart[i];
-                        for(y = 0; y < skuList.length; y++) {
-                            var sku = skuList[y];
-                            if(cartItem.sku == sku) {
-                                shoppingCart.splice(i,1);
-                            }
-                        }
+                    displayError.textContent = '';
+                }
+            });
+
+            member = JSON.parse(sessionStorage.getItem('member'));
+            document.getElementById('txtName').value = member.name;
+            document.getElementById('txtContact').value = member.phone;
+            document.getElementById('txtAddress').value = member.address;
+            document.getElementById('txtPostalCode').value = member.zipcode;
+
+            document.getElementById("makePayment").addEventListener('click', function () {
+                var cardRadio = document.getElementsByName('icon_solid');
+                var cardValue = null;
+                for (i = 0; i < cardRadio.length; i++) {
+                    if (cardRadio[i].checked) {
+                        cardValue = cardRadio[i].value;
                     }
-                    sessionStorage.setItem('shoppingCart', JSON.stringify(shoppingCart));
-                    window.location.href = '/B/' + countryPrefix + '/shoppingCart.html?goodMsg=Successfully removed!';
+                }
+                var name = document.getElementById('txtName').value;
+                var contactNum = document.getElementById('txtContact').value;
+                var address = document.getElementById('txtAddress').value;
+                var postalCode = document.getElementById('txtPostalCode').value;
+                var deliveryDate = document.getElementById('deliveryDate').innerHTML;
+
+                if (document.getElementById('deliveryForm').checkValidity()) {
+                    var paymentData = {
+                        memberId: member.id,
+                        email: memberEmail,
+                        price: finalPrice,
+                        shoppingCart: shoppingCart,
+                        name: name,
+                        phone: contactNum,
+                        address: address,
+                        postalCode: postalCode,
+                        deliveryDate: deliveryDate
+                    };
+
+                    if (cardValue == "add") {
+                        stripe.createToken(card).then(function (result) {
+                            if (result.error) {
+                                var errorElement = document.getElementById('card-errors');
+                                errorElement.textContent = result.error.message;
+                            } else {
+                                paymentData.token = result.token;
+                                paymentData.saveCard = document.getElementById('saveCard').checked;
+                                processPaymentNewCard(paymentData);
+                            }
+                        });
+                    }
+                    else {
+
+                        paymentData.customerId = stripeCustomer.id;
+                        paymentData.cardId = cardValue;
+                        processPaymentExistingCard(paymentData);
+                    }
+                }
+            });
+
+            document.getElementById('deliveryDate').innerHTML = addWorkDays(5);
+        }, false);
+
+        function removeItem() {
+            checkboxes = document.getElementsByName('delete');
+            var skuList = [];
+            var numOfTicks = 0;
+            //add SKU of item to remove to an array
+            for (i = 0, n = checkboxes.length; i < n; i++) {
+                if (checkboxes[i].checked) {
+                    numOfTicks++;
+                    skuList.push(checkboxes[i].value);
                 }
             }
-
-            function checkAll(source) {
-                checkboxes = document.getElementsByName('delete');
-                for (var i = 0, n = checkboxes.length; i < n; i++) {
-                    checkboxes[i].checked = source.checked;
-                }
-            }
-
-            function minus(sku) {
-                for(i = 0; i < shoppingCart.length; i++) {
+            if (checkboxes.length == 0 || numOfTicks == 0) {
+                window.location.href = '/B/' + countryPrefix + '/shoppingCart.html?errMsg=No item(s) selected for deletion.';
+            } else {
+                //remove selected items from shopping cart
+                for (i = 0; i < shoppingCart.length; i++) {
                     var cartItem = shoppingCart[i];
-                    if(cartItem.sku == sku) {
-                        //minus one quantity of an item if quantity is more than 1
-                        if(cartItem.quantity > 1) {
-                            shoppingCart[i].quantity = cartItem.quantity - 1;
-                        }
-                        //remove entire item from shopping cart
-                        else {
-                            shoppingCart.splice(i,1);
+                    for (y = 0; y < skuList.length; y++) {
+                        var sku = skuList[y];
+                        if (cartItem.sku == sku) {
+                            shoppingCart.splice(i, 1);
                         }
                     }
                 }
                 sessionStorage.setItem('shoppingCart', JSON.stringify(shoppingCart));
                 window.location.href = '/B/' + countryPrefix + '/shoppingCart.html?goodMsg=Successfully removed!';
             }
+        }
 
-            function plus(id, sku, name, price, imageURL) {
-                fetch(new Request('/api/getItemQuantity?sku=' + sku + '&storeId=-1',
+        function checkAll(source) {
+            checkboxes = document.getElementsByName('delete');
+            for (var i = 0, n = checkboxes.length; i < n; i++) {
+                checkboxes[i].checked = source.checked;
+            }
+        }
+
+        function minus(sku) {
+            for (i = 0; i < shoppingCart.length; i++) {
+                var cartItem = shoppingCart[i];
+                if (cartItem.sku == sku) {
+                    //minus one quantity of an item if quantity is more than 1
+                    if (cartItem.quantity > 1) {
+                        shoppingCart[i].quantity = cartItem.quantity - 1;
+                    }
+                    //remove entire item from shopping cart
+                    else {
+                        shoppingCart.splice(i, 1);
+                    }
+                }
+            }
+            sessionStorage.setItem('shoppingCart', JSON.stringify(shoppingCart));
+            window.location.href = '/B/' + countryPrefix + '/shoppingCart.html?goodMsg=Successfully removed!';
+        }
+
+        function plus(id, sku, name, price, imageURL) {
+            fetch(new Request('/api/getItemQuantity?sku=' + sku + '&storeId=-1',
                 {
                     method: 'GET'
                 })).then(function (response) {
@@ -317,9 +318,9 @@
                 }).then(function (data) {
                     var quantity = data[0].sum;
                     var allOk = true;
-                    for(i = 0; i < shoppingCart.length; i++) {
+                    for (i = 0; i < shoppingCart.length; i++) {
                         var cartItem = shoppingCart[i];
-                        if(cartItem.sku == sku) {
+                        if (cartItem.sku == sku) {
                             if (shoppingCart[i].quantity == quantity) {
                                 window.location.href = '/B/' + countryPrefix + '/shoppingCart.html?errMsg=Item not added to cart, not enough quantity available.';
                                 allOk = false;
@@ -333,35 +334,35 @@
                         sessionStorage.setItem('shoppingCart', JSON.stringify(shoppingCart));
                         window.location.href = '/B/' + countryPrefix + '/shoppingCart.html?goodMsg=Successfully Added!';
                     }
-                }).catch(function(error) {
+                }).catch(function (error) {
                     console.log(error);
                 });
-            }
+        }
 
-            function checkOut() {
-                document.getElementsByClassName('plus')[0].disabled = true;
-                document.getElementsByClassName('minus')[0].disabled = true;
-                document.getElementById('btnCheckout').disabled = true;
-                document.getElementById('btnRemove').disabled = true;
-                document.getElementsByClassName('minus')[0].setAttribute("style","cursor: not-allowed;");
-                document.getElementsByClassName('plus')[0].setAttribute("style","cursor: not-allowed;");
-                document.getElementById('btnCheckout').parentElement.removeAttribute('href');
-                document.getElementById('btnRemove').parentElement.removeAttribute('href');
-                $("html, body").animate({scrollTop: $(document).height() / 3}, "slow");
-                $("#makePaymentForm").show("slow", function () { });
-            }
+        function checkOut() {
+            document.getElementsByClassName('plus')[0].disabled = true;
+            document.getElementsByClassName('minus')[0].disabled = true;
+            document.getElementById('btnCheckout').disabled = true;
+            document.getElementById('btnRemove').disabled = true;
+            document.getElementsByClassName('minus')[0].setAttribute("style", "cursor: not-allowed;");
+            document.getElementsByClassName('plus')[0].setAttribute("style", "cursor: not-allowed;");
+            document.getElementById('btnCheckout').parentElement.removeAttribute('href');
+            document.getElementById('btnRemove').parentElement.removeAttribute('href');
+            $("html, body").animate({ scrollTop: $(document).height() / 3 }, "slow");
+            $("#makePaymentForm").show("slow", function () { });
+        }
 
-            function showCardDiv(show) {
-                if(show) {
-                    document.getElementById('newCardDiv').style.display = "block";
-                }
-                else {
-                    document.getElementById('newCardDiv').style.display = "none";
-                }
+        function showCardDiv(show) {
+            if (show) {
+                document.getElementById('newCardDiv').style.display = "block";
             }
+            else {
+                document.getElementById('newCardDiv').style.display = "none";
+            }
+        }
 
-            function processPaymentNewCard(paymentData) {
-                fetch(new Request('/api/processPaymentNewCard/',
+        function processPaymentNewCard(paymentData) {
+            fetch(new Request('/api/processPaymentNewCard/',
                 {
                     method: 'POST',
                     headers: {
@@ -372,19 +373,19 @@
                 })).then(function (response) {
                     return response.json();
                 }).then(function (data) {
-                    if(data.success) {
-                        updateMemberDetails(paymentData,data);
+                    if (data.success) {
+                        updateMemberDetails(paymentData, data);
                     } else {
                         var url = window.location.origin + window.location.pathname;
                         window.location.href = url + '?errMsg=' + data.errMsg;
                     }
-                }).catch(function(error) {
+                }).catch(function (error) {
                     console.log(error);
                 });
-            }
-//processpayment
-            function processPaymentExistingCard(paymentData) {
-                fetch(new Request('/api/processPaymentExistingCard/',
+        }
+        //processpayment
+        function processPaymentExistingCard(paymentData) {
+            fetch(new Request('/api/processPaymentExistingCard/',
                 {
                     method: 'POST',
                     headers: {
@@ -396,27 +397,27 @@
                     return response.json();
                 }).then(function (data) {
                     var url = window.location.origin + window.location.pathname;
-                    if(data.success) {
-                        updateMemberDetails(paymentData,data);
+                    if (data.success) {
+                        updateMemberDetails(paymentData, data);
                     }
                     else {
                         window.location.href = url + '?errMsg=' + data.errMsg;
                     }
-                }).catch(function(error) {
+                }).catch(function (error) {
                     console.log(error);
                 });
-            }
+        }
 
-            async function updateMemberDetails(paymentData,salesRecord) {
-                if (document.getElementById('saveDetails').checked) {
-                    var deliveryData = {
-                        email: memberEmail,
-                        name: paymentData.name,
-                        contactNum: paymentData.phone,
-                        address: paymentData.address,
-                        postalCode: paymentData.postalCode
-                    };
-                    await fetch(new Request('/api/updateMemberDeliveryDetails',
+        async function updateMemberDetails(paymentData, salesRecord) {
+            if (document.getElementById('saveDetails').checked) {
+                var deliveryData = {
+                    email: memberEmail,
+                    name: paymentData.name,
+                    contactNum: paymentData.phone,
+                    address: paymentData.address,
+                    postalCode: paymentData.postalCode
+                };
+                await fetch(new Request('/api/updateMemberDeliveryDetails',
                     {
                         method: 'PUT',
                         headers: {
@@ -432,9 +433,8 @@
                         sessionStorage.setItem("memberEmail", data.email);
                         sessionStorage.setItem("memberName", data.name);
 
-
                         var ok = await insertRecords(salesRecord);
-                        if(ok) {
+                        if (ok) {
                             sessionStorage.removeItem("shoppingCart");
                             var url = window.location.origin + window.location.pathname;
                             window.location.href = url + '?goodMsg=Successfully Paid';
@@ -442,33 +442,33 @@
                     }).catch(function (error) {
                         console.log(error);
                     });
-                }
-                else {
-                    var ok = await insertRecords(salesRecord);
-                    if(ok) {
-                        sessionStorage.removeItem("shoppingCart");
-                        var url = window.location.origin + window.location.pathname;
-                        window.location.href = url + '?goodMsg=Successfully Paid';
-                    }
+            }
+            else {
+                var ok = await insertRecords(salesRecord);
+                if (ok) {
+                    sessionStorage.removeItem("shoppingCart");
+                    var url = window.location.origin + window.location.pathname;
+                    window.location.href = url + '?goodMsg=Successfully Paid';
                 }
             }
+        }
 
-            async function insertRecords(salesRecord) {
-                if(salesRecord.success) {
-                    var allOk = true;
-                    var name = document.getElementById('txtName').value;
-                    var contactNum = document.getElementById('txtContact').value;
-                    var address = document.getElementById('txtAddress').value;
-                    var postalCode = document.getElementById('txtPostalCode').value;
-                    var data = {
-                        memberId: member.id,
-                        salesRecordId: salesRecord.generatedId,
-                        address: address,
-                        postalCode: postalCode,
-                        contactNum: contactNum,
-                        name: name
-                    };
-                    await fetch(new Request('/api/addDeliveryDetails',
+        async function insertRecords(salesRecord) {
+            if (salesRecord.success) {
+                var allOk = true;
+                var name = document.getElementById('txtName').value;
+                var contactNum = document.getElementById('txtContact').value;
+                var address = document.getElementById('txtAddress').value;
+                var postalCode = document.getElementById('txtPostalCode').value;
+                var data = {
+                    memberId: member.id,
+                    salesRecordId: salesRecord.generatedId,
+                    address: address,
+                    postalCode: postalCode,
+                    contactNum: contactNum,
+                    name: name
+                };
+                await fetch(new Request('/api/addDeliveryDetails',
                     {
                         method: 'POST',
                         headers: {
@@ -479,8 +479,8 @@
                     })).then(function (response) {
                         return response.json();
                     }).then(async function (data) {
-                        if(data) {
-                            for(i = 0; i < shoppingCart.length; i++) {
+                        if (data) {
+                            for (i = 0; i < shoppingCart.length; i++) {
                                 var cartItem = shoppingCart[i];
 
                                 var lineItemData = {
@@ -488,99 +488,99 @@
                                     id: cartItem.id
                                 };
                                 await fetch(new Request('/api/insertLineItemRecord',
-                                {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        Authorization: 'Bearer ' + authToken
-                                    },
-                                    body: JSON.stringify(lineItemData)
-                                })).then(function (response) {
-                                    return response.json();
-                                }).then(async function (lineItem) {
-                                    if(lineItem.success) {
-                                        var srliData = {
-    salesRecordId: salesRecord.generatedId,
-    lineItemId: lineItem.generatedId  
-};
-                                        await fetch(new Request('/api/insertSalesRecordLineItemRecord',
-                                        {
-                                            method: 'POST',
-                                            headers: {
-                                                'Content-Type': 'application/json',
-                                                Authorization: 'Bearer ' + authToken
-                                            },
-                                            body: JSON.stringify(srliData)
-                                        })).then(function (response) {
-                                            return response.json();
-                                        }).then(async function (srli) {
-                                            if(srli) {
-                                                var qtyTobuy = cartItem.quantity;
-                                                var loop = false;
-                                                do {
-                                                    loop = false;
-                                                    if((qty = await getStoreQuantity(cartItem.id,'Queenstown Store')) > 0) {
-                                                        if(qty - qtyTobuy >= 0) {
-                                                            allOk = await updateStoreQuantity(cartItem.id, 'Queenstown Store', qty - qtyTobuy);
-                                                        }
-                                                        else {
-                                                            allOk = await updateStoreQuantity(cartItem.id, 'Queenstown Store', 0);
-                                                            qtyTobuy -= qty;
-                                                            loop = true;
-                                                        }
+                                    {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            Authorization: 'Bearer ' + authToken
+                                        },
+                                        body: JSON.stringify(lineItemData)
+                                    })).then(function (response) {
+                                        return response.json();
+                                    }).then(async function (lineItem) {
+                                        if (lineItem.success) {
+                                            var srliData = {
+                                                salesRecordId: salesRecord.generatedId,
+                                                lineItemId: lineItem.generatedId
+                                            };
+                                            await fetch(new Request('/api/insertSalesRecordLineItemRecord',
+                                                {
+                                                    method: 'POST',
+                                                    headers: {
+                                                        'Content-Type': 'application/json',
+                                                        Authorization: 'Bearer ' + authToken
+                                                    },
+                                                    body: JSON.stringify(srliData)
+                                                })).then(function (response) {
+                                                    return response.json();
+                                                }).then(async function (srli) {
+                                                    if (srli) {
+                                                        var qtyTobuy = cartItem.quantity;
+                                                        var loop = false;
+                                                        do {
+                                                            loop = false;
+                                                            if ((qty = await getStoreQuantity(cartItem.id, 'Queenstown Store')) > 0) {
+                                                                if (qty - qtyTobuy >= 0) {
+                                                                    allOk = await updateStoreQuantity(cartItem.id, 'Queenstown Store', qty - qtyTobuy);
+                                                                }
+                                                                else {
+                                                                    allOk = await updateStoreQuantity(cartItem.id, 'Queenstown Store', 0);
+                                                                    qtyTobuy -= qty;
+                                                                    loop = true;
+                                                                }
+                                                            }
+                                                            else if ((qty = await getStoreQuantity(cartItem.id, 'Kent Ridge Store')) > 0) {
+                                                                if (qty - qtyTobuy >= 0) {
+                                                                    allOk = await updateStoreQuantity(cartItem.id, 'Kent Ridge Store', qty - qtyTobuy);
+                                                                }
+                                                                else {
+                                                                    allOk = await updateStoreQuantity(cartItem.id, 'Kent Ridge Store', 0);
+                                                                    qtyTobuy -= qty;
+                                                                    loop = true;
+                                                                }
+                                                            }
+                                                            else if ((qty = await getStoreQuantity(cartItem.id, 'Tampines Store')) > 0) {
+                                                                if (qty - qtyTobuy >= 0) {
+                                                                    allOk = await updateStoreQuantity(cartItem.id, 'Tampines Store', qty - qtyTobuy);
+                                                                }
+                                                                else {
+                                                                    allOk = await updateStoreQuantity(cartItem.id, 'Tampines Store', 0);
+                                                                    qtyTobuy -= qty;
+                                                                    loop = true;
+                                                                }
+                                                            }
+                                                            else if ((qty = await getStoreQuantity(cartItem.id, 'ECommerce Store')) > 0) {
+                                                                if (qty - qtyTobuy >= 0) {
+                                                                    allOk = await updateStoreQuantity(cartItem.id, 'ECommerce Store', qty - qtyTobuy);
+                                                                }
+                                                                else {
+                                                                    allOk = await updateStoreQuantity(cartItem.id, 'ECommerce Store', 0);
+                                                                    qtyTobuy -= qty;
+                                                                    loop = true;
+                                                                }
+                                                            }
+                                                        } while (loop);
                                                     }
-                                                    else if((qty = await getStoreQuantity(cartItem.id,'Kent Ridge Store')) > 0) {
-                                                        if(qty - qtyTobuy >= 0) {
-                                                            allOk = await updateStoreQuantity(cartItem.id, 'Kent Ridge Store', qty - qtyTobuy);
-                                                        }
-                                                        else {
-                                                            allOk = await updateStoreQuantity(cartItem.id, 'Kent Ridge Store', 0);
-                                                            qtyTobuy -= qty;
-                                                            loop = true;
-                                                        }
-                                                    }
-                                                    else if((qty = await getStoreQuantity(cartItem.id,'Tampines Store')) > 0) {
-                                                        if(qty - qtyTobuy >= 0) {
-                                                            allOk = await updateStoreQuantity(cartItem.id, 'Tampines Store', qty - qtyTobuy);
-                                                        }
-                                                        else {
-                                                            allOk = await updateStoreQuantity(cartItem.id, 'Tampines Store', 0);
-                                                            qtyTobuy -= qty;
-                                                            loop = true;
-                                                        }
-                                                    }
-                                                    else if((qty = await getStoreQuantity(cartItem.id,'ECommerce Store')) > 0) {
-                                                        if(qty - qtyTobuy >= 0) {
-                                                            allOk = await updateStoreQuantity(cartItem.id, 'ECommerce Store', qty - qtyTobuy);
-                                                        }
-                                                        else {
-                                                            allOk = await updateStoreQuantity(cartItem.id, 'ECommerce Store', 0);
-                                                            qtyTobuy -= qty;
-                                                            loop = true;
-                                                        }
-                                                    }
-                                                } while(loop);
-                                            }
-                                        }).catch(function (error) {
-                                            console.log(error);
-                                        });
-                                    }
-                                }).catch(function (error) {
-                                    console.log(error);
-                                });
+                                                }).catch(function (error) {
+                                                    console.log(error);
+                                                });
+                                        }
+                                    }).catch(function (error) {
+                                        console.log(error);
+                                    });
                             }
                         }
                     }).catch(function (error) {
                         console.log(error);
                     });
-                    
-                    return allOk;
-                }
-            }
 
-            async function getStoreQuantity(itemId, storeName) {
-                var qty = -1;
-                await fetch(new Request('/api/getItemQuantityByStoreName?itemId=' + itemId + '&storeName=' + storeName,
+                return allOk;
+            }
+        }
+
+        async function getStoreQuantity(itemId, storeName) {
+            var qty = -1;
+            await fetch(new Request('/api/getItemQuantityByStoreName?itemId=' + itemId + '&storeName=' + storeName,
                 {
                     method: 'GET',
                     headers: {
@@ -593,17 +593,17 @@
                 }).catch(function (error) {
                     console.log(error);
                 });
-                return qty;
-            }
+            return qty;
+        }
 
-            async function updateStoreQuantity(itemId, storeName, qty) {
-                var updated = false;
-                var data = {
-                    itemId: itemId,
-                    storeName: storeName,
-                    qty: qty
-                };
-                await fetch(new Request('/api/updateItemQuantity',
+        async function updateStoreQuantity(itemId, storeName, qty) {
+            var updated = false;
+            var data = {
+                itemId: itemId,
+                storeName: storeName,
+                qty: qty
+            };
+            await fetch(new Request('/api/updateItemQuantity',
                 {
                     method: 'PUT',
                     headers: {
@@ -618,15 +618,15 @@
                 }).catch(function (error) {
                     console.log(error);
                 });
-                return updated;
-            }
+            return updated;
+        }
 
-            function deleteCard() {
-                var data = {
-                    cardId: cardId,
-                    customerId: stripeCustomer.id
-                };
-                fetch(new Request('/api/deleteCard/',
+        function deleteCard() {
+            var data = {
+                cardId: cardId,
+                customerId: stripeCustomer.id
+            };
+            fetch(new Request('/api/deleteCard/',
                 {
                     method: 'POST',
                     headers: {
@@ -638,137 +638,148 @@
                     return response.json();
                 }).then(function (data) {
                     var url = window.location.origin + window.location.pathname;
-                    if(data.success) {
+                    if (data.success) {
                         window.location.href = url + '?goodMsg=Successfully Deleted';
                     }
                     else {
                         window.location.href = url + '?errMsg=' + data.errMsg;
                     }
-                }).catch(function(error) {
+                }).catch(function (error) {
                     console.log(error);
                 });
-            }
+        }
 
-            function addWorkDays(days) {
-                var startDate = new Date();
-                var dow = startDate.getDay();
-                var daysToAdd = parseInt(days);
-                if (dow == 0)
-                    daysToAdd++;
-                if (dow + daysToAdd >= 6) {
-                    var remainingWorkDays = daysToAdd - (5 - dow);
-                    daysToAdd += 2;
-                    if (remainingWorkDays > 5) {
-                        daysToAdd += 2 * Math.floor(remainingWorkDays / 5);
-                        if (remainingWorkDays % 5 == 0)
-                            daysToAdd -= 2;
-                    }
+        function addWorkDays(days) {
+            var startDate = new Date();
+            var dow = startDate.getDay();
+            var daysToAdd = parseInt(days);
+            if (dow == 0)
+                daysToAdd++;
+            if (dow + daysToAdd >= 6) {
+                var remainingWorkDays = daysToAdd - (5 - dow);
+                daysToAdd += 2;
+                if (remainingWorkDays > 5) {
+                    daysToAdd += 2 * Math.floor(remainingWorkDays / 5);
+                    if (remainingWorkDays % 5 == 0)
+                        daysToAdd -= 2;
                 }
-                startDate.setDate(startDate.getDate() + daysToAdd);
-                var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                return startDate.toLocaleDateString("en-US", options);
             }
-        </script>
+            startDate.setDate(startDate.getDate() + daysToAdd);
+            var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            return startDate.toLocaleDateString("en-US", options);
+        }
+    </script>
 
-        <div class="body">
-            <script src="menu2.js"></script>
-            <div role="main" class="main shop">
-                <section class="page-top">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <h2>Shopping Cart</h2>
-                            </div>
-                        </div>
-                    </div>
-                </section> 
-
-                <div class="container" id="printableArea">
-                    <hr class="tall">
+    <div class="body">
+        <script src="menu2.js"></script>
+        <div role="main" class="main shop">
+            <section class="page-top">
+                <div class="container">
                     <div class="row">
                         <div class="col-md-12">
-                            <div class="row featured-boxes">
-                                <div class="col-md-12">
-                                    <div class="featured-box featured-box-secundary featured-box-cart">
-                                        <div class="box-content">
-                                            <form method="post" onsubmit="return false;" name="shoppingCart">
-                                                <script src="/displayMessageLong.js"></script>
-                                                <table cellspacing="0" class="shop_table cart">
-                                                    <thead>
-                                                        <tr>                                                                
-                                                            <th class="product-remove">
-                                                                <input type="checkbox" onclick="checkAll(this)" />
-                                                            </th>                                                                
-                                                            <th class="product-thumbnail">
-                                                                Image
-                                                            </th>
-                                                            <th class="product-name" >
-                                                                Product
-                                                            </th>
+                            <h2>Shopping Cart</h2>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-                                                            <th class="product-price" style="width: 15%">
-                                                                Price
-                                                            </th>
-                                                            <th class="product-quantity">
-                                                                Quantity
-                                                            </th>
-                                                            <th class="product-subtotal" style="width: 15%">
-                                                                Subtotal
-                                                            </th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="cartBody"></tbody>
-                                                </table>
-                                                <div id="btmDiv"></div>
-                                            </form>
-                                            
-                                            <div id="makePaymentForm" hidden>
-                                                <hr class="tall">
-                                                <div class="col-md-6"><br />
-                                                    <h3 style="text-align: left; padding-left: 18px">Checkout</h3>
-                                                    <div class="paymentSection" style="padding: 0px 20px 0px 20px;">
-                                                        <form id="deliveryForm" name="deliveryForm" onsubmit="return false;">
-                                                            <h4 style="text-align: left">Delivery Details</h4>
-                                                            <div>
-                                                                <span>
-                                                                    <div class="form-group">
-                                                                        <label class="pull-left">Name: </label>
-                                                                        <input type="text" class="form-control" id="txtName" required>
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label class="pull-left">Contact: </label>
-                                                                        <input type="text" pattern="[0-9]*" class="form-control" title="Numbers only" id="txtContact" required>
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label class="pull-left">Address: </label>
-                                                                        <input type="text" class="form-control" id="txtAddress"  required>
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label class="pull-left">Postal Code: </label>
-                                                                        <input type="text" pattern="[0-9]{6}" class="form-control" title="6 Digit Number only" id="txtPostalCode" required>
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <input style="cursor: pointer; float: left;" type="checkbox" id="saveDetails" value="details" />
-                                                                        <label for="saveDetails" style="float: left; padding-left: 9px;">Save current details</label>
-                                                                    </div>
-                                                                </span>
-                                                            </div>
-                                                        </form>
-                                                        <div style="text-align:left;">* Estimated Delivery Date: <span id="deliveryDate"></span></div><br />
+            <div class="container" id="printableArea">
+                <hr class="tall">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="row featured-boxes">
+                            <div class="col-md-12">
+                                <div class="featured-box featured-box-secundary featured-box-cart">
+                                    <div class="box-content">
+                                        <form method="post" onsubmit="return false;" name="shoppingCart">
+                                            <script src="/displayMessageLong.js"></script>
+                                            <table cellspacing="0" class="shop_table cart">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="product-remove">
+                                                            <input type="checkbox" onclick="checkAll(this)" />
+                                                        </th>
+                                                        <th class="product-thumbnail">
+                                                            Image
+                                                        </th>
+                                                        <th class="product-name">
+                                                            Product
+                                                        </th>
 
-                                                        <div style="padding-top: 5%;">
-                                                            <h4 style="text-align: left">Credit Card Payment Details</h4><br />
-                                                            <div id="chooseCardDiv"></div>
-                                                            <div id="newCardDiv" style="padding: 10px 15px 0 15px;">
-                                                                <div id="card-element"></div><br />
-                                                                <div style="text-align: left; color: red" id="card-errors" role="alert"></div>
+                                                        <th class="product-price" style="width: 15%">
+                                                            Price
+                                                        </th>
+                                                        <th class="product-quantity">
+                                                            Quantity
+                                                        </th>
+                                                        <th class="product-subtotal" style="width: 15%">
+                                                            Subtotal
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="cartBody"></tbody>
+                                            </table>
+                                            <div id="btmDiv"></div>
+                                        </form>
 
-                                                                <input style="float:left; cursor: pointer;" type="checkbox" id="saveCard" />
-                                                                <label for="saveCard" style="float: left; padding-left: 9px;">Save card</label>
-                                                            </div>
+                                        <div id="makePaymentForm" hidden>
+                                            <hr class="tall">
+                                            <div class="col-md-6"><br />
+                                                <h3 style="text-align: left; padding-left: 18px">Checkout</h3>
+                                                <div class="paymentSection" style="padding: 0px 20px 0px 20px;">
+                                                    <form id="deliveryForm" name="deliveryForm" onsubmit="return false;">
+                                                        <h4 style="text-align: left">Delivery Details</h4>
+                                                        <div>
+                                                            <span>
+                                                                <div class="form-group">
+                                                                    <label class="pull-left">Name: </label>
+                                                                    <input type="text" class="form-control" id="txtName"
+                                                                        required>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <label class="pull-left">Contact: </label>
+                                                                    <input type="text" pattern="[0-9]*" class="form-control"
+                                                                        title="Numbers only" id="txtContact" required>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <label class="pull-left">Address: </label>
+                                                                    <input type="text" class="form-control" id="txtAddress"
+                                                                        required>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <label class="pull-left">Postal Code: </label>
+                                                                    <input type="text" pattern="[0-9]{6}" class="form-control"
+                                                                        title="6 Digit Number only" id="txtPostalCode"
+                                                                        required>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <input style="cursor: pointer; float: left;" type="checkbox"
+                                                                        id="saveDetails" value="details" />
+                                                                    <label for="saveDetails" style="float: left; padding-left: 9px;">Save
+                                                                        current details</label>
+                                                                </div>
+                                                            </span>
                                                         </div>
-                                                        <div align="left" style="padding-top:9%;padding-bottom: 20px;"><input type="submit" form="deliveryForm" id="makePayment" value="Make Payment" class="btn btn-primary"></div>
+                                                    </form>
+                                                    <div style="text-align:left;">* Estimated Delivery Date: <span id="deliveryDate"></span></div><br />
+
+                                                    <div style="padding-top: 5%;">
+                                                        <h4 style="text-align: left">Credit Card Payment Details</h4><br />
+                                                        <div id="chooseCardDiv"></div>
+                                                        <div id="newCardDiv" style="padding: 10px 15px 0 15px;">
+                                                            <div id="card-element"></div><br />
+                                                            <div style="text-align: left; color: red" id="card-errors"
+                                                                role="alert"></div>
+
+                                                            <input style="float:left; cursor: pointer;" type="checkbox"
+                                                                id="saveCard" />
+                                                            <label for="saveCard" style="float: left; padding-left: 9px;">Save
+                                                                card</label>
+                                                        </div>
                                                     </div>
+                                                    <div align="left" style="padding-top:9%;padding-bottom: 20px;"><input
+                                                            type="submit" form="deliveryForm" id="makePayment" value="Make Payment"
+                                                            class="btn btn-primary"></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -779,94 +790,102 @@
                     </div>
                 </div>
             </div>
-
-            <div role="dialog" class="modal fade" id="myModal">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4>Remove item(s)</h4>
-                        </div>
-                        <div class="modal-body">
-                            <p id="messageBox">The selected item(s) will be removed from your shopping cart. Are you sure you want to continue?</p>
-                        </div>
-                        <div class="modal-footer">                        
-                            <input class="btn btn-primary" name="btnRemove" type="submit" value="Confirm" onclick="removeItem()"  />
-                            <a class="btn btn-default" data-dismiss ="modal">Close</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div role="dialog" class="modal fade" id="checkoutModal">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4>Checking out...</h4>
-                        </div>
-                        <div class="modal-body">
-                            <p id="messageBox">Are you sure you want to check out?</p>
-                        </div>
-                        <div class="modal-footer">                        
-                            <input class="btn btn-primary" data-dismiss ="modal" name="btnCheckout" type="button" value="Confirm" onclick="checkOut()"  />
-                            <a class="btn btn-default" data-dismiss ="modal">Close</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div role="dialog" class="modal fade" id="deleteCardModal">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h4>Remove Card...</h4>
-                            </div>
-                            <div class="modal-body">
-                                <p id="messageBox">Are you sure you want to remove this card?</p>
-                            </div>
-                            <div class="modal-footer">                        
-                                <input class="btn btn-danger" data-dismiss ="modal" type="button" value="Confirm" onclick="deleteCard()"  />
-                                <a class="btn btn-default" data-dismiss ="modal">Cancel</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            <style>
-                .paymentSection {
-                    background-color: #fafafa;
-                    border-radius: 8px;
-                    border: 1px solid #bcbcbc;
-                    border-top: 4px solid #CC3B33;
-                    padding: 0 20px 20px 20px
-                }
-                .StripeElement {
-                    background-color: white;
-                    height: 40px;
-                    padding: 10px 12px;
-                    border-radius: 4px;
-                    border: 2px solid transparent;
-                    box-shadow: 0 3px 5px 0 #e6ebf1;
-                    -webkit-transition: box-shadow 150ms ease;
-                    transition: box-shadow 150ms ease;
-                }
-                .StripeElement--focus {
-                    box-shadow: 0 3px 5px 0 #cfd7df;
-                }
-                .StripeElement--invalid {
-                    border-color: #fa755a;
-                }
-                .StripeElement--complete {
-                    border-color: #45bc42;
-                }
-            </style>
-            <script src="../footer.js"></script>
-
-            <!-- Theme Initializer -->
-            <script src="../../js/theme.plugins.js"></script>
-            <script src="../../js/theme.js"></script>
-
-            <!-- Current Page JS -->
-            <script src="../../vendor/rs-plugin/js/jquery.themepunch.tools.min.js"></script>
-            <script src="../../vendor/rs-plugin/js/jquery.themepunch.revolution.js"></script>
-            <script src="../../vendor/circle-flip-slideshow/js/jquery.flipshow.js"></script>
-            <script src="../../js/views/view.home.js"></script>   
         </div>
-    </body>
+
+        <div role="dialog" class="modal fade" id="myModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4>Remove item(s)</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p id="messageBox">The selected item(s) will be removed from your shopping cart. Are you sure
+                            you want to continue?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <input class="btn btn-primary" name="btnRemove" type="submit" value="Confirm" onclick="removeItem()" />
+                        <a class="btn btn-default" data-dismiss="modal">Close</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div role="dialog" class="modal fade" id="checkoutModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4>Checking out...</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p id="messageBox">Are you sure you want to check out?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <input class="btn btn-primary" data-dismiss="modal" name="btnCheckout" type="button" value="Confirm"
+                            onclick="checkOut()" />
+                        <a class="btn btn-default" data-dismiss="modal">Close</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div role="dialog" class="modal fade" id="deleteCardModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4>Remove Card...</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p id="messageBox">Are you sure you want to remove this card?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <input class="btn btn-danger" data-dismiss="modal" type="button" value="Confirm" onclick="deleteCard()" />
+                        <a class="btn btn-default" data-dismiss="modal">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <style>
+            .paymentSection {
+                background-color: #fafafa;
+                border-radius: 8px;
+                border: 1px solid #bcbcbc;
+                border-top: 4px solid #CC3B33;
+                padding: 0 20px 20px 20px
+            }
+
+            .StripeElement {
+                background-color: white;
+                height: 40px;
+                padding: 10px 12px;
+                border-radius: 4px;
+                border: 2px solid transparent;
+                box-shadow: 0 3px 5px 0 #e6ebf1;
+                -webkit-transition: box-shadow 150ms ease;
+                transition: box-shadow 150ms ease;
+            }
+
+            .StripeElement--focus {
+                box-shadow: 0 3px 5px 0 #cfd7df;
+            }
+
+            .StripeElement--invalid {
+                border-color: #fa755a;
+            }
+
+            .StripeElement--complete {
+                border-color: #45bc42;
+            }
+        </style>
+        <script src="../footer.js"></script>
+
+        <!-- Theme Initializer -->
+        <script src="../../js/theme.plugins.js"></script>
+        <script src="../../js/theme.js"></script>
+
+        <!-- Current Page JS -->
+        <script src="../../vendor/rs-plugin/js/jquery.themepunch.tools.min.js"></script>
+        <script src="../../vendor/rs-plugin/js/jquery.themepunch.revolution.js"></script>
+        <script src="../../vendor/circle-flip-slideshow/js/jquery.flipshow.js"></script>
+        <script src="../../js/views/view.home.js"></script>
+    </div>
+</body>
+
 </html>
