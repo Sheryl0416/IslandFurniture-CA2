@@ -119,3 +119,5 @@ app.post('/api/updateRetailProduct', upload.single('imgfile'), function (req, re
 });
 
 module.exports = app;
+
+//changed
