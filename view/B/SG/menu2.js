@@ -1,4 +1,5 @@
 var countryPrefix = localStorage.getItem("urlPrefix");
+
 document.write('\
 <script>\
     document.addEventListener("DOMContentLoaded", function(){\
@@ -24,7 +25,7 @@ document.write('\
     }, false);\
     function logout() {\
         sessionStorage.clear();\
-        window.location.href = "/B/' + countryPrefix + '/memberLogin.html?goodMsg=Logout Successfully."\
+        window.location.href = "/B/' + countryPrefix + '/memberLogin.html?goodMsg=Logout Successfully.";\
     }\
 </script>\
 <header id="header">\

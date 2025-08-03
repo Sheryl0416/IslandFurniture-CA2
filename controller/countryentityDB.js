@@ -1,6 +1,8 @@
 var express = require('express');
 var app = express();
 let middleware = require('./middleware');
+const mysql = require('mysql2');
+
 
 var country = require('../model/countryModel.js');
 app.get('/api/getCountryByName/:name', function (req, res) {
