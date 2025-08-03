@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
 let middleware = require('./middleware');
-var multer  = require('multer');
+var multer = require('multer');
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, './view/img/products/')
@@ -72,7 +72,7 @@ app.post('/api/addFurniture', upload.single('imgfile'), function (req, res) {
     };
     furniture.addFurniture(data)
         .then((result) => {
-            if(result.success) {
+            if (result.success) {
                 res.redirect('/A6/furnitureManagement_Add.html?goodMsg=Furniture with SKU "' + result.sku + '" has been created successfully.')
             }
         })
@@ -107,7 +107,7 @@ app.post('/api/updateFurniture', upload.single('imgfile'), function (req, res) {
     };
     furniture.updateFurniture(data)
         .then((result) => {
-            if(result) {
+            if (result) {
                 res.redirect('/A6/furnitureManagement.html?goodMsg=Furniture updated successfully.')
             }
         })
