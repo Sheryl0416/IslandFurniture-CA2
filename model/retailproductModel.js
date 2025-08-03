@@ -2,7 +2,7 @@ var db = require('./databaseConfig.js');
 var RetailProduct = require('./retailproduct.js');
 var retailProductDB = {
     getAllRetailProducts: function () {
-        return new Promise( ( resolve, reject ) => {
+        return new Promise((resolve, reject) => {
             var conn = db.getConnection();
             conn.connect(function (err) {
                 if (err) {
@@ -12,15 +12,15 @@ var retailProductDB = {
                 }
                 else {
                     var sql = 'SELECT i.ID as id, i.NAME as name, rp.IMAGEURL as imageURL, i.SKU as sku, i.DESCRIPTION as description,'
-                                +' i.TYPE as type,i.CATEGORY as category, i._LENGTH as length, i.WIDTH as width, i.HEIGHT as height'
-                                +' FROM itementity i, retailproductentity rp where i.ID=rp.ID and i.ISDELETED=FALSE;';
+                        + ' i.TYPE as type,i.CATEGORY as category, i._LENGTH as length, i.WIDTH as width, i.HEIGHT as height'
+                        + ' FROM itementity i, retailproductentity rp where i.ID=rp.ID and i.ISDELETED=FALSE;';
                     conn.query(sql, function (err, result) {
                         if (err) {
                             conn.end();
                             return reject(err);
                         } else {
                             var productList = [];
-                            for(var i = 0; i < result.length; i++) {
+                            for (var i = 0; i < result.length; i++) {
                                 var retailProduct = new RetailProduct();
                                 retailProduct.id = result[i].id;
                                 retailProduct.name = result[i].name;
@@ -43,7 +43,7 @@ var retailProductDB = {
         });
     },
     getRetailProductByCat: function (cat, countryId) {
-        return new Promise( ( resolve, reject ) => {
+        return new Promise((resolve, reject) => {
             var conn = db.getConnection();
             conn.connect(function (err) {
                 if (err) {
@@ -52,18 +52,18 @@ var retailProductDB = {
                     return reject(err);
                 }
                 else {
-                    if(cat == 'All Retail Products') {
-                        if(countryId == null || countryId == '') {
+                    if (cat == 'All Retail Products') {
+                        if (countryId == null || countryId == '') {
                             var sql = 'SELECT i.ID as id, i.NAME as name, rp.IMAGEURL as imageURL, i.SKU as sku, i.DESCRIPTION as description,'
-                                +' i.TYPE as type,i.CATEGORY as category FROM itementity i, retailproductentity rp where i.ID=rp.ID and'
-                                +' i.ISDELETED=FALSE;';
+                                + ' i.TYPE as type,i.CATEGORY as category FROM itementity i, retailproductentity rp where i.ID=rp.ID and'
+                                + ' i.ISDELETED=FALSE;';
                             conn.query(sql, function (err, result) {
                                 if (err) {
                                     conn.end();
                                     return reject(err);
                                 } else {
                                     var productList = [];
-                                    for(var i = 0; i < result.length; i++) {
+                                    for (var i = 0; i < result.length; i++) {
                                         var retailProduct = new RetailProduct();
                                         retailProduct.id = result[i].id;
                                         retailProduct.name = result[i].name;
@@ -81,15 +81,15 @@ var retailProductDB = {
                         }
                         else {
                             var sql = 'SELECT i.ID as id, i.NAME as name, rp.IMAGEURL as imageURL, i.SKU as sku, i.DESCRIPTION as description,'
-                                +' i.TYPE as type, i.CATEGORY as category, ic.RETAILPRICE as price FROM itementity i, retailproductentity rp,'
-                                +' item_countryentity ic where i.ID=rp.ID and i.ID=ic.ITEM_ID and i.ISDELETED=FALSE and ic.COUNTRY_ID=?;';
+                                + ' i.TYPE as type, i.CATEGORY as category, ic.RETAILPRICE as price FROM itementity i, retailproductentity rp,'
+                                + ' item_countryentity ic where i.ID=rp.ID and i.ID=ic.ITEM_ID and i.ISDELETED=FALSE and ic.COUNTRY_ID=?;';
                             conn.query(sql, [countryId], function (err, result) {
                                 if (err) {
                                     conn.end();
                                     return reject(err);
                                 } else {
                                     var productList = [];
-                                    for(var i = 0; i < result.length; i++) {
+                                    for (var i = 0; i < result.length; i++) {
                                         var retailProduct = new RetailProduct();
                                         retailProduct.id = result[i].id;
                                         retailProduct.name = result[i].name;
@@ -108,17 +108,17 @@ var retailProductDB = {
                         }
                     }
                     else {
-                        if(countryId == null || countryId == '') {
+                        if (countryId == null || countryId == '') {
                             var sql = 'SELECT i.ID as id, i.NAME as name, rp.IMAGEURL as imageURL, i.SKU as sku, i.DESCRIPTION as description,'
-                                +' i.TYPE as type,i.CATEGORY as category FROM itementity i, retailproductentity rp where i.ID=rp.ID and'
-                                +' i.CATEGORY=? and i.ISDELETED=FALSE;';
+                                + ' i.TYPE as type,i.CATEGORY as category FROM itementity i, retailproductentity rp where i.ID=rp.ID and'
+                                + ' i.CATEGORY=? and i.ISDELETED=FALSE;';
                             conn.query(sql, [cat], function (err, result) {
                                 if (err) {
                                     conn.end();
                                     return reject(err);
                                 } else {
                                     var productList = [];
-                                    for(var i = 0; i < result.length; i++) {
+                                    for (var i = 0; i < result.length; i++) {
                                         var retailProduct = new RetailProduct();
                                         retailProduct.id = result[i].id;
                                         retailProduct.name = result[i].name;
@@ -136,16 +136,16 @@ var retailProductDB = {
                         }
                         else {
                             var sql = 'SELECT i.ID as id, i.NAME as name, rp.IMAGEURL as imageURL, i.SKU as sku, i.DESCRIPTION as description,'
-                                +' i.TYPE as type, i.CATEGORY as category, ic.RETAILPRICE as price FROM itementity i, retailproductentity rp,'
-                                +' item_countryentity ic where i.ID=rp.ID and i.ID=ic.ITEM_ID and i.ISDELETED=FALSE and ic.COUNTRY_ID=?'
-                                +' and i.CATEGORY=?';
-                            conn.query(sql, [countryId,cat], function (err, result) {
+                                + ' i.TYPE as type, i.CATEGORY as category, ic.RETAILPRICE as price FROM itementity i, retailproductentity rp,'
+                                + ' item_countryentity ic where i.ID=rp.ID and i.ID=ic.ITEM_ID and i.ISDELETED=FALSE and ic.COUNTRY_ID=?'
+                                + ' and i.CATEGORY=?';
+                            conn.query(sql, [countryId, cat], function (err, result) {
                                 if (err) {
                                     conn.end();
                                     return reject(err);
                                 } else {
                                     var productList = [];
-                                    for(var i = 0; i < result.length; i++) {
+                                    for (var i = 0; i < result.length; i++) {
                                         var retailProduct = new RetailProduct();
                                         retailProduct.id = result[i].id;
                                         retailProduct.name = result[i].name;
@@ -168,7 +168,7 @@ var retailProductDB = {
         });
     },
     getRetailProductBySku: function (countryId, sku) {
-        return new Promise( ( resolve, reject ) => {
+        return new Promise((resolve, reject) => {
             var conn = db.getConnection();
             conn.connect(function (err) {
                 if (err) {
@@ -177,10 +177,10 @@ var retailProductDB = {
                     return reject(err);
                 }
                 else {
-                    if(countryId == null || countryId == '') {
+                    if (countryId == null || countryId == '') {
                         var sql = 'SELECT i.ID as id, i.NAME as name, rp.IMAGEURL as imageURL, i.SKU as sku, i.DESCRIPTION as description,'
-                            +'i.TYPE as type,i.CATEGORY as category FROM itementity i, retailproductentity rp where i.ID=rp.ID and'
-                            +' i.ISDELETED=FALSE and i.SKU=?;';
+                            + 'i.TYPE as type,i.CATEGORY as category FROM itementity i, retailproductentity rp where i.ID=rp.ID and'
+                            + ' i.ISDELETED=FALSE and i.SKU=?;';
                         conn.query(sql, [sku], function (err, result) {
                             if (err) {
                                 conn.end();
@@ -201,9 +201,9 @@ var retailProductDB = {
                     }
                     else {
                         var sql = 'SELECT i.ID as id, i.NAME as name, rp.IMAGEURL as imageURL, i.SKU as sku, i.DESCRIPTION as description,'
-                            +'i.TYPE as type, i.CATEGORY as category, ic.RETAILPRICE as price FROM itementity i, retailproductentity rp,'
-                            +'item_countryentity ic where i.ID=rp.ID and i.ID=ic.ITEM_ID and i.ISDELETED=FALSE and ic.COUNTRY_ID=?'
-                            +' and i.SKU=?;';
+                            + 'i.TYPE as type, i.CATEGORY as category, ic.RETAILPRICE as price FROM itementity i, retailproductentity rp,'
+                            + 'item_countryentity ic where i.ID=rp.ID and i.ID=ic.ITEM_ID and i.ISDELETED=FALSE and ic.COUNTRY_ID=?'
+                            + ' and i.SKU=?;';
                         conn.query(sql, [countryId, sku], function (err, result) {
                             if (err) {
                                 conn.end();
@@ -228,7 +228,7 @@ var retailProductDB = {
         });
     },
     addRetailProduct: function (data) {
-        return new Promise( ( resolve, reject ) => {
+        return new Promise((resolve, reject) => {
             var conn = db.getConnection();
             conn.connect(function (err) {
                 if (err) {
@@ -245,7 +245,7 @@ var retailProductDB = {
                     var width = data.width;
                     var height = data.height;
                     var volume = parseFloat(length) * parseFloat(width) * parseFloat(height);
-                    var sqlArgs = ["RetailProductEntity",sku,length,category,description,height,name,"Retail Product",volume,width];
+                    var sqlArgs = ["RetailProductEntity", sku, length, category, description, height, name, "Retail Product", volume, width];
                     var sql = 'INSERT INTO itementity(DTYPE,SKU,_LENGTH,CATEGORY,DESCRIPTION,HEIGHT,NAME,TYPE,VOLUME,WIDTH)'
                         + 'values(?,?,?,?,?,?,?,?,?,?)';
                     conn.query(sql, sqlArgs, function (err, result) {
@@ -253,11 +253,11 @@ var retailProductDB = {
                             conn.end();
                             return reject(err);
                         } else {
-                            if(result.affectedRows > 0) {
+                            if (result.affectedRows > 0) {
                                 retailProductDB.addRetailProduct2(result.insertId, data.imgPath)
                                     .then((result) => {
                                         conn.end();
-                                        return resolve({success: result, sku: sku});
+                                        return resolve({ success: result, sku: sku });
                                     })
                                     .catch((err) => {
                                         console.log(err);
@@ -272,7 +272,7 @@ var retailProductDB = {
         });
     },
     addRetailProduct2: function (id, imgPath) {
-        return new Promise( ( resolve, reject ) => {
+        return new Promise((resolve, reject) => {
             var conn = db.getConnection();
             conn.connect(function (err) {
                 if (err) {
@@ -282,13 +282,13 @@ var retailProductDB = {
                 }
                 else {
                     var sql = 'INSERT INTO retailproductentity(ID, IMAGEURL) values(?,?)';
-                    conn.query(sql, [id,imgPath], function (err, result) {
+                    conn.query(sql, [id, imgPath], function (err, result) {
                         if (err) {
                             conn.end();
                             return reject(err);
-                        } 
+                        }
                         else {
-                            if(result.affectedRows > 0) {
+                            if (result.affectedRows > 0) {
                                 conn.end();
                                 return resolve(true);
                             }
@@ -299,7 +299,7 @@ var retailProductDB = {
         });
     },
     updateRetailProduct: function (data) {
-        return new Promise( ( resolve, reject ) => {
+        return new Promise((resolve, reject) => {
             var conn = db.getConnection();
             conn.connect(function (err) {
                 if (err) {
@@ -312,12 +312,12 @@ var retailProductDB = {
                     var category = data.category;
                     var description = data.description;
                     var sql = 'UPDATE itementity SET NAME=?, CATEGORY=?, DESCRIPTION=? WHERE ID=?';
-                    conn.query(sql, [name,category,description,id], function (err, result) {
+                    conn.query(sql, [name, category, description, id], function (err, result) {
                         if (err) {
                             conn.end();
                             return reject(err);
                         } else {
-                            if(result.affectedRows > 0) {
+                            if (result.affectedRows > 0) {
                                 conn.end();
                                 return resolve(true);
                             }
@@ -328,7 +328,7 @@ var retailProductDB = {
         });
     },
     removeRetailProduct: function (ids) {
-        return new Promise( ( resolve, reject ) => {
+        return new Promise((resolve, reject) => {
             var conn = db.getConnection();
             conn.connect(function (err) {
                 if (err) {
@@ -338,7 +338,7 @@ var retailProductDB = {
                 }
                 else {
                     var idString = '';
-                    for(i = 0; i < ids.length; i++) {
+                    for (i = 0; i < ids.length; i++) {
                         idString += ids[i] + ',';
                     }
                     idString = idString.substr(0, idString.length - 1);
@@ -347,9 +347,9 @@ var retailProductDB = {
                         if (err) {
                             conn.end();
                             return reject(err);
-                        } 
+                        }
                         else {
-                            if(result.affectedRows > 0) {
+                            if (result.affectedRows > 0) {
                                 retailProductDB.removeRetailProduct2(idString)
                                     .then((result) => {
                                         conn.end();
@@ -368,7 +368,7 @@ var retailProductDB = {
         });
     },
     removeRetailProduct2: function (idString) {
-        return new Promise( ( resolve, reject ) => {
+        return new Promise((resolve, reject) => {
             var conn = db.getConnection();
             conn.connect(function (err) {
                 if (err) {
@@ -382,7 +382,7 @@ var retailProductDB = {
                         if (err) {
                             conn.end();
                             return reject(err);
-                        } 
+                        }
                         else {
                             retailProductDB.removeRetailProduct3(idString)
                                 .then((result) => {
@@ -401,7 +401,7 @@ var retailProductDB = {
         });
     },
     removeRetailProduct3: function (idString) {
-        return new Promise( ( resolve, reject ) => {
+        return new Promise((resolve, reject) => {
             var conn = db.getConnection();
             conn.connect(function (err) {
                 if (err) {
@@ -415,9 +415,9 @@ var retailProductDB = {
                         if (err) {
                             conn.end();
                             return reject(err);
-                        } 
+                        }
                         else {
-                            if(result.affectedRows > 0) {
+                            if (result.affectedRows > 0) {
                                 conn.end();
                                 return resolve(true);
                             }

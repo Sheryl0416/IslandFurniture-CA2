@@ -2,7 +2,7 @@ var db = require('./databaseConfig.js');
 var ShippingOrder = require('./shippingorder.js')
 var shippingOrderDB = {
     getShippingOrders: function () {
-        return new Promise( ( resolve, reject ) => {
+        return new Promise((resolve, reject) => {
             var conn = db.getConnection();
             conn.connect(function (err) {
                 if (err) {
@@ -20,7 +20,7 @@ var shippingOrderDB = {
                             return reject(err);
                         } else {
                             var soList = [];
-                            for(var i = 0; i < result.length; i++) {
+                            for (var i = 0; i < result.length; i++) {
                                 var orders = new ShippingOrder();
                                 orders.id = result[i].ID;
                                 orders.createdDate = result[i].CREATEDDATE;
@@ -44,7 +44,7 @@ var shippingOrderDB = {
         });
     },
     getShippingOrderById: function (id) {
-        return new Promise( ( resolve, reject ) => {
+        return new Promise((resolve, reject) => {
             var conn = db.getConnection();
             conn.connect(function (err) {
                 if (err) {
@@ -82,7 +82,7 @@ var shippingOrderDB = {
         });
     },
     getShippingOrderLineItem: function (id) {
-        return new Promise( ( resolve, reject ) => {
+        return new Promise((resolve, reject) => {
             var conn = db.getConnection();
             conn.connect(function (err) {
                 if (err) {
@@ -108,7 +108,7 @@ var shippingOrderDB = {
         });
     },
     addShippingOrder: function (details) {
-        return new Promise( ( resolve, reject ) => {
+        return new Promise((resolve, reject) => {
             var conn = db.getConnection();
             conn.connect(function (err) {
                 if (err) {
@@ -117,7 +117,7 @@ var shippingOrderDB = {
                     return reject(err);
                 }
                 else {
-                    var sqlArgs = [new Date(),new Date(details.expectedReceiveDate),'Pending',details.submittedBy,details.destination,details.source];
+                    var sqlArgs = [new Date(), new Date(details.expectedReceiveDate), 'Pending', details.submittedBy, details.destination, details.source];
                     var sql = 'INSERT INTO shippingorderentity(CREATEDDATE,EXPECTEDRECEIVEDDATE,STATUS,SUBMITTEDBY,DESTINATION_ID,ORIGIN_ID)'
                         + 'values(?,?,?,?,?,?)';
                     conn.query(sql, sqlArgs, function (err, result) {
@@ -125,9 +125,9 @@ var shippingOrderDB = {
                             conn.end();
                             return reject(err);
                         } else {
-                            if(result.affectedRows > 0) {
+                            if (result.affectedRows > 0) {
                                 conn.end();
-                                return resolve({success: true, id: result.insertId});
+                                return resolve({ success: true, id: result.insertId });
                             }
                         }
                     });
@@ -136,7 +136,7 @@ var shippingOrderDB = {
         });
     },
     addShippingOrderLineItem: function (details) {
-        return new Promise( ( resolve, reject ) => {
+        return new Promise((resolve, reject) => {
             var conn = db.getConnection();
             conn.connect(function (err) {
                 if (err) {
@@ -147,12 +147,12 @@ var shippingOrderDB = {
                 else {
                     var sql = 'INSERT INTO shippingorderentity_lineitementity(ShippingOrderEntity_ID,lineItems_ID)'
                         + 'values(?,?)';
-                    conn.query(sql, [details.shippingOrderId,details.lineItemId], function (err, result) {
+                    conn.query(sql, [details.shippingOrderId, details.lineItemId], function (err, result) {
                         if (err) {
                             conn.end();
                             return reject(err);
                         } else {
-                            if(result.affectedRows > 0) {
+                            if (result.affectedRows > 0) {
                                 conn.end();
                                 return resolve(true);
                             }
@@ -162,8 +162,8 @@ var shippingOrderDB = {
             });
         });
     },
-    updateShippingOrder: function (id,destination,source,expectedDate) {
-        return new Promise( ( resolve, reject ) => {
+    updateShippingOrder: function (id, destination, source, expectedDate) {
+        return new Promise((resolve, reject) => {
             var conn = db.getConnection();
             conn.connect(function (err) {
                 if (err) {
@@ -173,12 +173,12 @@ var shippingOrderDB = {
                 }
                 else {
                     var sql = 'UPDATE shippingorderentity SET EXPECTEDRECEIVEDDATE=?,DESTINATION_ID=?,ORIGIN_ID=? WHERE ID=?';
-                    conn.query(sql, [expectedDate,destination,source,id], function (err, result) {
+                    conn.query(sql, [expectedDate, destination, source, id], function (err, result) {
                         if (err) {
                             conn.end();
                             return reject(err);
                         } else {
-                            if(result.affectedRows > 0) {
+                            if (result.affectedRows > 0) {
                                 conn.end();
                                 return resolve(true);
                             }
@@ -188,8 +188,8 @@ var shippingOrderDB = {
             });
         });
     },
-    updateShippingOrderStatus: function (id,status) {
-        return new Promise( ( resolve, reject ) => {
+    updateShippingOrderStatus: function (id, status) {
+        return new Promise((resolve, reject) => {
             var conn = db.getConnection();
             conn.connect(function (err) {
                 if (err) {
@@ -199,12 +199,12 @@ var shippingOrderDB = {
                 }
                 else {
                     var sql = 'UPDATE shippingorderentity SET STATUS=? WHERE ID=?';
-                    conn.query(sql, [status,id], function (err, result) {
+                    conn.query(sql, [status, id], function (err, result) {
                         if (err) {
                             conn.end();
                             return reject(err);
                         } else {
-                            if(result.affectedRows > 0) {
+                            if (result.affectedRows > 0) {
                                 conn.end();
                                 return resolve(true);
                             }
@@ -214,8 +214,8 @@ var shippingOrderDB = {
             });
         });
     },
-    updateShippingOrderShippedDate: function (id,date) {
-        return new Promise( ( resolve, reject ) => {
+    updateShippingOrderShippedDate: function (id, date) {
+        return new Promise((resolve, reject) => {
             var conn = db.getConnection();
             conn.connect(function (err) {
                 if (err) {
@@ -225,12 +225,12 @@ var shippingOrderDB = {
                 }
                 else {
                     var sql = 'UPDATE shippingorderentity SET SHIPPEDDATE=? WHERE ID=?';
-                    conn.query(sql, [date,id], function (err, result) {
+                    conn.query(sql, [date, id], function (err, result) {
                         if (err) {
                             conn.end();
                             return reject(err);
                         } else {
-                            if(result.affectedRows > 0) {
+                            if (result.affectedRows > 0) {
                                 conn.end();
                                 return resolve(true);
                             }
@@ -241,7 +241,7 @@ var shippingOrderDB = {
         });
     },
     removeSOLineItem: function (ids) {
-        return new Promise( ( resolve, reject ) => {
+        return new Promise((resolve, reject) => {
             var conn = db.getConnection();
             conn.connect(function (err) {
                 if (err) {
@@ -251,7 +251,7 @@ var shippingOrderDB = {
                 }
                 else {
                     var idString = '';
-                    for(i = 0; i < ids.length; i++) {
+                    for (i = 0; i < ids.length; i++) {
                         idString += ids[i] + ',';
                     }
                     idString = idString.substr(0, idString.length - 1);
@@ -260,9 +260,9 @@ var shippingOrderDB = {
                         if (err) {
                             conn.end();
                             return reject(err);
-                        } 
+                        }
                         else {
-                            if(result.affectedRows > 0) {
+                            if (result.affectedRows > 0) {
                                 conn.end();
                                 return resolve(true);
                             }
@@ -273,7 +273,7 @@ var shippingOrderDB = {
         });
     },
     removeSOLineItem2: function (ids) {
-        return new Promise( ( resolve, reject ) => {
+        return new Promise((resolve, reject) => {
             var conn = db.getConnection();
             conn.connect(function (err) {
                 if (err) {
@@ -283,7 +283,7 @@ var shippingOrderDB = {
                 }
                 else {
                     var idString = '';
-                    for(i = 0; i < ids.length; i++) {
+                    for (i = 0; i < ids.length; i++) {
                         idString += ids[i] + ',';
                     }
                     idString = idString.substr(0, idString.length - 1);
@@ -292,9 +292,9 @@ var shippingOrderDB = {
                         if (err) {
                             conn.end();
                             return reject(err);
-                        } 
+                        }
                         else {
-                            if(result.affectedRows > 0) {
+                            if (result.affectedRows > 0) {
                                 conn.end();
                                 return resolve(true);
                             }
