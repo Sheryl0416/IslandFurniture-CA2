@@ -1,12 +1,12 @@
-var express = require("express");
+var express = require('express');
 var app = express();
-let middleware = require("./middleware");
+let middleware = require('./middleware');
 
-var member = require("../model/memberModel.js");
-app.get("/api/memberAuthState", middleware.checkToken, function (req, res) {
+var member = require('../model/memberModel.js');
+const bcrypt = require('bcrypt'); // ✅ Add this line to fix bcrypt is not defined
+app.get('/api/memberAuthState', middleware.checkToken, function (req, res) {
   var email = req.query.email;
-  member
-    .getMemberAuthState(email)
+  member.getMemberAuthState(email)
     .then((result) => {
       res.send(result);
     })
@@ -16,10 +16,9 @@ app.get("/api/memberAuthState", middleware.checkToken, function (req, res) {
     });
 });
 
-app.get("/api/getMember", function (req, res) {
+app.get('/api/getMember', function (req, res) {
   var email = req.query.email;
-  member
-    .getMember(email)
+  member.getMember(email)
     .then((result) => {
       res.send(result);
     })
@@ -29,10 +28,9 @@ app.get("/api/getMember", function (req, res) {
     });
 });
 
-app.get("/api/getBoughtItem/:id", middleware.checkToken, function (req, res) {
+app.get('/api/getBoughtItem/:id', middleware.checkToken, function (req, res) {
   var id = req.params.id;
-  member
-    .getBoughtItem(id)
+  member.getBoughtItem(id)
     .then((result) => {
       res.send(result);
     })
@@ -42,10 +40,9 @@ app.get("/api/getBoughtItem/:id", middleware.checkToken, function (req, res) {
     });
 });
 
-app.get("/api/checkMemberEmailExists", function (req, res) {
+app.get('/api/checkMemberEmailExists', function (req, res) {
   var email = req.query.email;
-  member
-    .checkMemberEmailExists(email)
+  member.checkMemberEmailExists(email)
     .then((result) => {
       res.send(result);
     })
@@ -55,14 +52,12 @@ app.get("/api/checkMemberEmailExists", function (req, res) {
     });
 });
 
-app.get("/api/getPasswordResetCode", function (req, res) {
+app.get('/api/getPasswordResetCode', function (req, res) {
   var email = req.query.email;
-  member
-    .checkMemberEmailExists(email)
+  member.checkMemberEmailExists(email)
     .then((result) => {
       if (result) {
-        member
-          .getPasswordResetCode(email)
+        member.getPasswordResetCode(email)
           .then((result) => {
             res.send({ success: true, code: result.passwordReset });
           })
@@ -70,7 +65,8 @@ app.get("/api/getPasswordResetCode", function (req, res) {
             console.log(err);
             res.status(500).send("Failed to get password reset code");
           });
-      } else {
+      }
+      else {
         res.send({ success: false });
       }
     })
@@ -80,13 +76,12 @@ app.get("/api/getPasswordResetCode", function (req, res) {
     });
 });
 
-var bodyParser = require("body-parser");
+var bodyParser = require('body-parser');
 var jsonParser = bodyParser.json({ extended: false });
-app.post("/api/loginMember", jsonParser, function (req, res) {
+app.post('/api/loginMember', jsonParser, function (req, res) {
   var email = req.body.email;
   var password = req.body.password;
-  member
-    .checkMemberLogin(email, password)
+  member.checkMemberLogin(email, password)
     .then((result) => {
       res.send(result);
     })
@@ -96,30 +91,26 @@ app.post("/api/loginMember", jsonParser, function (req, res) {
     });
 });
 
-var request = require("request");
-app.post("/api/registerMember", jsonParser, function (req, res) {
+var request = require('request');
+app.post('/api/registerMember', jsonParser, function (req, res) {
   var email = req.body.email;
   var password = req.body.password;
   var recaptcha = req.body.recaptcha;
   var hostName = req.body.hostName;
-  if (recaptcha == null || recaptcha == undefined || recaptcha == "") {
-    res.send({ success: false, errorMsg: "Please select captcha" });
-  } else {
+  if (recaptcha == null || recaptcha == undefined || recaptcha == '') {
+    res.send({ "success": false, "errorMsg": "Please select captcha" });
+  }
+  else {
     var secretKey = "6LcLaXYUAAAAAALjkMho0ywJyylxa0kUOylNG7SU";
-    var verificationUrl =
-      "https://www.google.com/recaptcha/api/siteverify?secret=" +
-      secretKey +
-      "&response=" +
-      recaptcha +
-      "&remoteip=" +
-      req.connection.remoteAddress;
+    var verificationUrl = "https://www.google.com/recaptcha/api/siteverify?secret=" + secretKey
+      + "&response=" + recaptcha + "&remoteip=" + req.connection.remoteAddress;
     request(verificationUrl, function (error, response, body) {
       body = JSON.parse(body);
       if (body.success !== undefined && !body.success) {
-        res.send({ errorMsg: "Failed captcha verification" });
-      } else {
-        member
-          .registerMember(email, password, hostName)
+        res.send({ "errorMsg": "Failed captcha verification" });
+      }
+      else {
+        member.registerMember(email, password, hostName)
           .then((result) => {
             res.send(result);
           })
@@ -132,11 +123,10 @@ app.post("/api/registerMember", jsonParser, function (req, res) {
   }
 });
 
-app.post("/api/sendPasswordReset", jsonParser, function (req, res) {
+app.post('/api/sendPasswordReset', jsonParser, function (req, res) {
   var email = req.body.email;
   var url = req.body.url;
-  member
-    .sendPasswordResetCode(email, url)
+  member.sendPasswordResetCode(email, url)
     .then((result) => {
       res.send(result);
     })
@@ -146,13 +136,12 @@ app.post("/api/sendPasswordReset", jsonParser, function (req, res) {
     });
 });
 
-app.post("/api/sendFeedback", jsonParser, function (req, res) {
+app.post('/api/sendFeedback', jsonParser, function (req, res) {
   var name = req.body.name;
   var email = req.body.email;
   var subject = req.body.subject;
   var message = req.body.message;
-  member
-    .sendFeedback(name, email, subject, message)
+  member.sendFeedback(name, email, subject, message)
     .then((result) => {
       res.send(result);
     })
@@ -162,11 +151,10 @@ app.post("/api/sendFeedback", jsonParser, function (req, res) {
     });
 });
 
-app.post("/api/verifyPassword", jsonParser, function (req, res) {
+app.post('/api/verifyPassword', jsonParser, function (req, res) {
   var id = req.body.id;
   var password = req.body.password;
-  member
-    .verifyPassword(id, password)
+  member.verifyPassword(id, password)
     .then((result) => {
       res.send(result);
     })
@@ -176,21 +164,14 @@ app.post("/api/verifyPassword", jsonParser, function (req, res) {
     });
 });
 
-app.put("/api/activateMemberAccount", jsonParser, function (req, res) {
+app.put('/api/activateMemberAccount', jsonParser, function (req, res) {
   var email = req.body.email;
   var activationCode = req.body.activateCode;
-  if (
-    email != null &&
-    email != "" &&
-    activationCode != null &&
-    activationCode != ""
-  ) {
-    member
-      .getMemberActivateCode(email)
+  if (email != null && email != '' && activationCode != null && activationCode != '') {
+    member.getMemberActivateCode(email)
       .then((result) => {
         if (result.activationCode == activationCode) {
-          member
-            .memberActivateAccount(email)
+          member.memberActivateAccount(email)
             .then((result) => {
               res.send(result);
             })
@@ -198,7 +179,8 @@ app.put("/api/activateMemberAccount", jsonParser, function (req, res) {
               console.log(err);
               res.status(500).send("Failed to activate member account");
             });
-        } else {
+        }
+        else {
           res.status(500).send("Failed to activate member account");
         }
       })
@@ -209,37 +191,51 @@ app.put("/api/activateMemberAccount", jsonParser, function (req, res) {
   }
 });
 
-app.put(
-  "/api/updateMember",
-  [middleware.checkToken, jsonParser],
-  function (req, res) {
-    member
-      .updateMember(req.body)
-      .then((result) => {
-        if (result.success) {
-          member
-            .getMember(req.body.email)
-            .then((result) => {
-              res.send(result);
-            })
-            .catch((err) => {
-              console.log(err);
-              res.status(500).send("Failed to get member");
-            });
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(500).send("Failed to update member");
-      });
-  }
-);
+app.put('/api/updateMember', [middleware.checkToken, jsonParser], async function (req, res) {
+  try {
+    const details = req.body;
 
-app.put("/api/updateMemberPassword", jsonParser, function (req, res) {
+    // 🛡️ If user wants to change password, validate old password
+    if (details.password && details.password.trim() !== '') {
+      if (!details.oldPassword || details.oldPassword.trim() === '') {
+        return res.status(400).send({ success: false, message: 'Old password is required to change password.' });
+      }
+
+      const currentMember = await member.getMember(details.email);
+
+      if (!currentMember || !currentMember.passwordHash) {
+        return res.status(400).send({ success: false, message: 'Unable to find member or password hash.' });
+      }
+
+      const isPasswordCorrect = await bcrypt.compare(details.oldPassword, currentMember.passwordHash);
+      if (!isPasswordCorrect) {
+        // ❗Throw so it can be caught below and return 400
+        throw new Error('Old password is incorrect.');
+      }
+    }
+
+    // ✅ Update the member (with or without password)
+    const updateResult = await member.updateMember(details);
+
+    if (updateResult.success) {
+      const updatedMember = await member.getMember(details.email);
+      return res.send(updatedMember);
+    } else {
+      return res.status(500).send({ success: false, message: 'Failed to update member.' });
+    }
+  } catch (err) {
+    console.log("❌ Update member error:", err.message);
+    // Return specific error for user (400 if logic fail, 500 if DB/system fail)
+    if (err.message === 'Old password is incorrect.' || err.message.includes('required')) {
+      return res.status(400).send({ success: false, message: err.message });
+    }
+    return res.status(500).send({ success: false, message: "Failed to update member" });
+  }
+});
+app.put('/api/updateMemberPassword', jsonParser, function (req, res) {
   var email = req.body.email;
   var password = req.body.password;
-  member
-    .updateMemPasswordAndResetCode(email, password)
+  member.updateMemPasswordAndResetCode(email, password)
     .then((result) => {
       res.send(result);
     })
@@ -249,35 +245,29 @@ app.put("/api/updateMemberPassword", jsonParser, function (req, res) {
     });
 });
 
-app.put(
-  "/api/updateMemberDeliveryDetails",
-  [middleware.checkToken, jsonParser],
-  function (req, res) {
-    var email = req.body.email;
-    var name = req.body.name;
-    var contactNum = req.body.contactNum;
-    var address = req.body.address;
-    var postalCode = req.body.postalCode;
-    member
-      .updateMemberDeliveryDetails(email, name, contactNum, address, postalCode)
-      .then((result) => {
-        if (result.success) {
-          member
-            .getMember(req.body.email)
-            .then((result) => {
-              res.send(result);
-            })
-            .catch((err) => {
-              console.log(err);
-              res.status(500).send("Failed to get member");
-            });
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(500).send("Failed to update member delivery details");
-      });
-  }
-);
+app.put('/api/updateMemberDeliveryDetails', [middleware.checkToken, jsonParser], function (req, res) {
+  var email = req.body.email;
+  var name = req.body.name;
+  var contactNum = req.body.contactNum;
+  var address = req.body.address;
+  var postalCode = req.body.postalCode;
+  member.updateMemberDeliveryDetails(email, name, contactNum, address, postalCode)
+    .then((result) => {
+      if (result.success) {
+        member.getMember(req.body.email)
+          .then((result) => {
+            res.send(result);
+          })
+          .catch((err) => {
+            console.log(err);
+            res.status(500).send("Failed to get member");
+          });
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).send("Failed to update member delivery details");
+    });
+});
 
 module.exports = app;
