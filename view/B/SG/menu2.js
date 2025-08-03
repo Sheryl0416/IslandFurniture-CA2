@@ -1,10 +1,6 @@
 var countryPrefix = localStorage.getItem("urlPrefix");
-<<<<<<< HEAD:view/menu2.js
+
 document.write('\
-=======
-document.write(
-  '\
->>>>>>> 1df4cc91fa2d5e02be4ee29b13382e5b7944263d:view/B/SG/menu2.js
 <script>\
     document.addEventListener("DOMContentLoaded", function(){\
         var memberEmail = sessionStorage.getItem("memberEmail");\
@@ -21,7 +17,6 @@ document.write(
             }\
             document.getElementById("memberName").innerHTML = "Welcome " + welcomeText + "!";\
         }\
-<<<<<<< HEAD:view/menu2.js
         document.getElementById("tableDeskLink").setAttribute("href", "/B/' + countryPrefix + '/furnitureCategory.html?cat=" + encodeURIComponent("Tables & Desks"));\
         document.getElementById("bedMattressLink").setAttribute("href", "/B/' + countryPrefix + '/furnitureCategory.html?cat=" + encodeURIComponent("Beds & Mattresses"));\
         document.getElementById("sofaChairLink").setAttribute("href", "/B/' + countryPrefix + '/furnitureCategory.html?cat=" + encodeURIComponent("Sofas & Chair"));\
@@ -30,30 +25,7 @@ document.write(
     }, false);\
     function logout() {\
         sessionStorage.clear();\
-        window.location.href = "/B/' + countryPrefix + '/memberLogin.html?goodMsg=Logout Successfully."\
-=======
-        document.getElementById("tableDeskLink").setAttribute("href", "/B/' +
-    countryPrefix +
-    '/furnitureCategory.html?cat=" + encodeURIComponent("Tables & Desks"));\
-        document.getElementById("bedMattressLink").setAttribute("href", "/B/' +
-    countryPrefix +
-    '/furnitureCategory.html?cat=" + encodeURIComponent("Beds & Mattresses"));\
-        document.getElementById("sofaChairLink").setAttribute("href", "/B/' +
-    countryPrefix +
-    '/furnitureCategory.html?cat=" + encodeURIComponent("Sofas & Chair"));\
-        document.getElementById("cabinetStorageLink").setAttribute("href", "/B/' +
-    countryPrefix +
-    '/furnitureCategory.html?cat=" + encodeURIComponent("Cabinets & Storage"));\
-        document.getElementById("retailProductLink").setAttribute("href", "/B/' +
-    countryPrefix +
-    '/retailProductsCategory.html?cat=" + encodeURIComponent("All Retail Products"));\
-    }, false);\
-    function logout() {\
-        sessionStorage.clear();\
-        window.location.href = "/B/' +
-    countryPrefix +
-    '/memberLogin.html?goodMsg=Logout Successfully."\
->>>>>>> 1df4cc91fa2d5e02be4ee29b13382e5b7944263d:view/B/SG/menu2.js
+        window.location.href = "/B/' + countryPrefix + '/memberLogin.html?goodMsg=Logout Successfully.";\
     }\
 </script>\
 <header id="header">\
@@ -126,21 +98,9 @@ document.write(
                             <li><a id="bedMattressLink"><i class="icon icon-map-marker"></i> Beds & Mattresses</a></li>\
                             <li><a id="sofaChairLink"><i class="icon icon-map-marker"></i> Sofas & Chair</a></li>\
                             <li><a id="cabinetStorageLink"><i class="icon icon-map-marker"></i> Cabinets & Storage</a></li>\
-<<<<<<< HEAD:view/menu2.js
                             <li><a href="/B/' + countryPrefix + '/furnitureCategory.html?cat=Lightings"><i class="icon icon-map-marker"></i> Lightings</a></li>\
                             <li><a href="/B/' + countryPrefix + '/furnitureCategory.html?cat=Study"><i class="icon icon-map-marker"></i> Study</a></li>\
                             <li><a href="/B/' + countryPrefix + '/furnitureCategory.html?cat=Children"><i class="icon icon-map-marker"></i> Children</a></li>\
-=======
-                            <li><a href="/B/' +
-    countryPrefix +
-    '/furnitureCategory.html?cat=Lightings"><i class="icon icon-map-marker"></i> Lightings</a></li>\
-                            <li><a href="/B/' +
-    countryPrefix +
-    '/furnitureCategory.html?cat=Study"><i class="icon icon-map-marker"></i> Study</a></li>\
-                            <li><a href="/B/' +
-    countryPrefix +
-    '/furnitureCategory.html?cat=Children"><i class="icon icon-map-marker"></i> Children</a></li>\
->>>>>>> 1df4cc91fa2d5e02be4ee29b13382e5b7944263d:view/B/SG/menu2.js
                             <li><a id="retailProductLink"><i class="icon icon-coffee"></i> Retail Products</a></li>\
                         </ul>\
                     </li>\

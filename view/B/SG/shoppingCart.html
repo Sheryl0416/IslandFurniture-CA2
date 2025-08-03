@@ -382,7 +382,7 @@
                     console.log(error);
                 });
             }
-
+//processpayment
             function processPaymentExistingCard(paymentData) {
                 fetch(new Request('/api/processPaymentExistingCard/',
                 {
@@ -500,9 +500,9 @@
                                 }).then(async function (lineItem) {
                                     if(lineItem.success) {
                                         var srliData = {
-                                            salesRecordId: salesRecord.generatedId,
-                                            lineItemId: lineItem.lineItemId
-                                        };
+    salesRecordId: salesRecord.generatedId,
+    lineItemId: lineItem.generatedId  
+};
                                         await fetch(new Request('/api/insertSalesRecordLineItemRecord',
                                         {
                                             method: 'POST',

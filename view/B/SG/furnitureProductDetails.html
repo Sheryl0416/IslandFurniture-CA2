@@ -3,61 +3,58 @@
     <script src="../../header.js"></script>
     <body>
         <script>
-            var countryPrefix = localStorage.getItem('urlPrefix');
-            //get sku from query parameter
+            //get category from query parameter
             var currentUrl = new URL(window.location.href);
-            var sku = currentUrl.searchParams.get("sku");
-            var memberEmail = sessionStorage.getItem('memberEmail');
-            if(sku == null || sku == '') {
-                window.location.href = '/B/' + countryPrefix + '/index.html';
-            }
-            var countryId = localStorage.getItem('countryId');
-            fetch(new Request('/api/getFurnitureBySku?sku=' + sku + '&countryId=' + countryId,
+            var cat = currentUrl.searchParams.get("cat");
+            document.addEventListener('DOMContentLoaded', function(){
+                var countryId = localStorage.getItem('countryId');
+                fetch(new Request('/api/getFurnitureByCat?cat=' + encodeURIComponent(cat) + '&countryId=' + countryId,
                 {
                     method: 'GET'
                 })).then(function (response) {
                     return response.json();
-                }).then(function (furniture) {
-                    //set furniture details
-                    document.getElementById("imgFurniture").setAttribute('src', furniture.imageURL);
-                
-                    if(memberEmail != null && memberEmail != '') {
-                        document.getElementById("addToCartBtn").innerHTML = '<button class="btn btn-primary" onclick="addToCart(\''
-                        + furniture.sku + '\',\'' + furniture.id + '\',' + furniture.price + ',\'' + furniture.name + '\',\''
-                        + furniture.imageURL + '\')">Add To Cart</button>';
-                    }
-               
-                    document.getElementById("categoryLink").innerHTML = furniture.category;
-                    document.getElementById("categoryLink").setAttribute('href', '/B/' + countryPrefix
-                        + '/furnitureCategory.html?cat=' + encodeURIComponent(furniture.category));
-
-                    var selectOptions = '<option></option>';
-                    var storeID = currentUrl.searchParams.get("storeID");
-                    var storesInCountry = JSON.parse(localStorage.getItem('storesInCountry'));
-                    for (i = 0; i < storesInCountry.length; i++) {
-                        var store = storesInCountry[i];
-                        if(store.id == storeID) {
-                            selectOptions += '<option selected value="' + store.id + '">' + store.name + '</option>';
-                        }
-                        else {
-                            selectOptions += '<option value="' + store.id + '">' + store.name + '</option>';
-                        }
-                    }
-                    document.getElementById("storeID").innerHTML = selectOptions;
-
-                    var quantityDivTxt = 'Status: ';
-                    var itemQty = currentUrl.searchParams.get("itemQty");
-                    if(itemQty != null) {
-                        quantityDivTxt += itemQty > 0 ? 'Available':'Unavailable';
-                        quantityDivTxt += '<br/>Remaining Qty: ' + itemQty;
-                        document.getElementById("quantityDiv").innerHTML = '\
-                            <div class="col-md-6">\
-                                ' + quantityDivTxt + '\
-                            </div>';
-                    }
+                }).then(function (data) {
+                    var htmlTxt = '';
+                   
+                        data.forEach(function(furniture) {
+    htmlTxt += '\
+        <li class="col-md-3 col-sm-6 col-xs-12 product" style="padding-bottom: 1%;padding-top: 2%;">\
+            <span class="product-thumb-info">\
+                <span class="product-thumb-info-image">\
+                    <span class="product-thumb-info-act">\
+                        <span class="product-thumb-info-act-left">\
+                            <a href="furnitureProductDetails.html?sku=' + furniture.sku + '" style="color: white"><em>View Details</em></a>\
+                        </span>\
+                    </span>\
+                    <img alt="" class="img-responsive" src="' + furniture.imageURL + '">\
+                </span>\
+                <span class="product-thumb-info-content">\
+                    <h4>' + furniture.name + '</h4>\
+                    <span class="product-thumb-info-act-left"><em>Height: ' + furniture.height + '</em></span><br/>\
+                    <span class="product-thumb-info-act-left"><em>Length: ' + furniture.length + '</em></span><br/>\
+                    <span class="product-thumb-info-act-left"><em>Width: ' + furniture.width + '</em></span><br/>\
+                    <span class="product-thumb-info-act-left"><em>Price: $' + furniture.price + '.00</em></span><br/>\
+                    <form action="furnitureProductDetails.html">\
+                        <input type="hidden" name="sku" value="' + furniture.sku + '"/>\
+                        <input type="submit" class="btn btn-primary btn-block" value="More Details"/>\
+                    </form>';
+    
+    var memberEmail = sessionStorage.getItem('memberEmail');
+    if(memberEmail != null && memberEmail != '') {
+        htmlTxt += '<button class="btn btn-primary btn-block" onclick="addToCart(\'' + furniture.sku +
+            '\',\'' + furniture.id + '\',' + furniture.price + ',\'' + furniture.name + '\',\'' + furniture.imageURL +
+            '\')">Add To Cart</button>';
+    }
+    
+    htmlTxt += '</span></span></li>';
+});
+                   
+                    document.getElementById("furnituresDisplay").innerHTML = htmlTxt;
+                    document.getElementById("categoryTitle").innerHTML = cat;
                 }).catch(function(error) {
                     console.log(error);
                 });
+            }, false);
 
             function addToCart(sku,id,price,name,imageURL) {
                 fetch(new Request('/api/getItemQuantity?sku=' + sku + '&storeId=-1',
@@ -70,7 +67,7 @@
                     //if there is not enough quantity for a product to be added to the cart
                     if(quantity == null || quantity == '') {
                         var url = window.location.origin + window.location.pathname;
-                        window.location.href = url + '?sku=' + sku + '&errMsg=Item not added to cart, not enough quantity available.';
+                        window.location.href = url + '?cat=' + encodeURIComponent(cat) + '&errMsg=Item not added to cart, not enough quantity available.';
                     }
                     else {
                         var allOk = true;
@@ -95,7 +92,7 @@
                                 if(cartItem.sku == sku) {
                                     if (shoppingCart[i].quantity == quantity) {
                                         var url = window.location.origin + window.location.pathname;
-                                        window.location.href = url + '?sku=' + sku + '&errMsg=Item not added to cart, not enough quantity available.';
+                                        window.location.href = url + '?cat=' + encodeURIComponent(cat) + '&errMsg=Item not added to cart, not enough quantity available.';
                                         exist = true;
                                         allOk = false;
                                     }
@@ -120,34 +117,12 @@
                         if (allOk) {
                             sessionStorage.setItem('shoppingCart', JSON.stringify(shoppingCart));
                             var url = window.location.origin + window.location.pathname;
-                            window.location.href = url + '?sku=' + sku + '&goodMsg=Successfully added!';
+                            window.location.href = url + '?cat=' + encodeURIComponent(cat) + '&goodMsg=Successfully added!';
                         }
                     }
                 }).catch(function(error) {
                     console.log(error);
                 });
-            }
-
-            function CheckItemAvail() {
-                var storeId = document.getElementById("storeID").value;
-                if(storeId != null && storeId != '') {
-                    fetch(new Request('/api/getItemQuantity?sku=' + sku + '&storeId=' + storeId,
-                    {
-                        method: 'GET'
-                    })).then(function (response) {
-                        return response.json();
-                    }).then(function (data) {
-                        var quantity = data[0].sum;
-                        if(quantity == null || quantity == '') {
-                            quantity = 0;
-                        }
-                        //refresh page with item's quantity in the query parameter to display to the user
-                        var url = window.location.origin + window.location.pathname;
-                        window.location.href = url + '?sku=' + sku + '&itemQty=' + quantity + '&storeID=' + storeId;
-                    }).catch(function(error) {
-                        console.log(error);
-                    });
-                }
             }
         </script>
         <div class="body">
@@ -167,42 +142,17 @@
                         <script src="/displayMessageLong.js"></script>
                         <div class="row">
                             <div class="col-md-6">
-                                <div>
-                                    <div class="thumbnail">
-                                        <img alt="" class="img-responsive img-rounded" id="imgFurniture">
-                                    </div>
-                                </div>
+                                <h2 class="shorter"><strong id="categoryTitle"></strong></h2>
                             </div>
-                            <div class="col-md-6">
-                                <div class="summary entry-summary">
-                                    <h2 class="shorter"><strong id="furnitureName"></strong></h2>
-                                    <div id="addToCartBtn"></div>
-                                    <p class="price"><h4 class="amount" id="price"></h4></p>
-                                    <strong>Description</strong>
-                                    <p class="taller" id="description"></p>
-                                    <p id="furnitureInfo"></p>
-                                    <div class="product_meta">
-                                        <span class="posted_in">Category: <a id="categoryLink" rel="tag"></a></span>
-                                    </div>
-                                    <br/><br/>
-
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <form onsubmit="return false;">
-                                                View Item Availability<br/>
-                                                <select style="color: black;" name="storeID" id="storeID"></select><br/><br/>
-                                                <input type="submit" onclick="CheckItemAvail()" class="btn btn-primary btn-icon" value="Check Item Availability"/>
-                                            </form>
-                                        </div>
-                                        <div id="quantityDiv"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <hr class="tall">
                         </div>
+                        <div class="row">
+                            <ul id="furnituresDisplay" class="products product-thumb-info-list" style="list-style-type: none; margin-left: -3%;" data-plugin-masonry></ul>
+                        </div>
+                        <hr class="tall">
                     </div>
                 </div>
-                <script src="../footer.js"></script>
             </div>
+            <script src="../footer.js"></script>
+        </div>
     </body>
 </html>
