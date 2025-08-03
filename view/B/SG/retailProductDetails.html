@@ -1,4 +1,4 @@
-<script src="../checkCountry.js" ></script>
+<script src="../checkCountry.js"></script>
 <html>
     <script src="../../header.js"></script>
     <body>
@@ -20,6 +20,17 @@
                 }).then(function (product) {
                     //set retail product details
                     document.getElementById("productImg").setAttribute('src', product.imageURL);
+                    document.getElementById("productName").innerHTML = product.name;
+                    document.getElementById("productPrice").innerHTML = "$" + product.price.toFixed(2);
+                    document.getElementById("productDesc").innerHTML = product.description;
+
+                    let sizeInfo = '';
+                    if (product.height && product.length && product.width) {
+                        sizeInfo += '<br/>Height: ' + product.height;
+                        sizeInfo += '<br/>Length: ' + product.length;
+                        sizeInfo += '<br/>Width: ' + product.width;
+                    }
+                    document.getElementById("productDesc").innerHTML += sizeInfo;
 
                     document.getElementById("productCategory").innerHTML = product.category;
                     document.getElementById("productCategory").setAttribute('href', '/B/' + countryPrefix
