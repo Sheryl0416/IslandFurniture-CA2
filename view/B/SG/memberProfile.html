@@ -205,94 +205,106 @@
             return startDate.toLocaleDateString("en-US", options);
         }
 
-        async function submitForm() {
-            var oldPassword = document.getElementById('oldPassword').value.trim();
-            var password = document.getElementById("password").value.trim();
-            var repassword = document.getElementById("repassword").value.trim();
-            var ok = true;
+       async function submitForm() {
+    var oldPassword = document.getElementById('oldPassword').value.trim();
+    var password = document.getElementById("password").value.trim();
+    var repassword = document.getElementById("repassword").value.trim();
+    var ok = true;
 
-            // 🛑 Case: New password entered but old password is empty
-            if ((password !== "" || repassword !== "") && oldPassword === "") {
-                alert("To change your password, please enter your current password.");
-                return;
-            }
+    // 🛑 Case: New password entered but old password is empty
+    if ((password !== "" || repassword !== "") && oldPassword === "") {
+        alert("To change your password, please enter your current password.");
+        return;
+    }
 
-            // 🛡️ Verify old password if password change is attempted
-            if (oldPassword !== "" || password !== "" || repassword !== "") {
-                if (password !== repassword) {
-                    document.getElementById("password").style.borderColor = "#E34234";
-                    document.getElementById("repassword").style.borderColor = "#E34234";
-                    alert("Passwords do not match. Please key again.");
-                    return;
-                } else if (password.length < 8) {
-                    alert("Password too short. Must be at least 8 characters.");
-                    return;
-                }
-
-                const verifyPayload = { id: member.id, password: oldPassword };
-
-                const verifyResult = await fetch('/api/verifyPassword', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: 'Bearer ' + authToken
-                    },
-                    body: JSON.stringify(verifyPayload)
-                }).then(res => res.json()).catch(err => {
-                    console.error(err);
-                    alert("Failed to verify password.");
-                    ok = false;
-                });
-
-                if (!verifyResult || !verifyResult.success) {
-                    alert("Old password is incorrect.");
-                    return;
-                }
-            }
-
-            // ✅ Prepare data and proceed to update
-            const updateData = {
-                email: document.getElementById("email").value,
-                name: document.getElementById("name").value,
-                phone: document.getElementById("phone").value,
-                country: document.getElementById("country").value, // ✅ FIXED
-                address: document.getElementById("address").value,
-                securityQuestion: document.getElementById("securityQuestion").value,
-                securityAnswer: document.getElementById("securityAnswer").value,
-                age: document.getElementById("age").value,
-                income: document.getElementById("income").value,
-                sla: document.getElementById("serviceLevelAgreement").checked ? 1 : 0,
-                password: password
-            };
-            if (password && password !== "") {
-                updateData.oldPassword = oldPassword;
-            }
-
-            fetch('/api/updateMember', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: 'Bearer ' + authToken
-                },
-                body: JSON.stringify(updateData)
-            })
-                .then(async res => {
-                    if (!res.ok) {
-                        const errText = await res.text();  // 👈 FIX: get plain text if not JSON
-                        throw new Error(errText);
-                    }
-                    return res.json();
-                })
-                .then(data => {
-                    sessionStorage.setItem("member", JSON.stringify(data));
-                    alert("Your profile has been updated!");
-                    location.reload();
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert("Error: " + err.message);
-                });
+    // 🛡️ Verify old password if password change is attempted
+    if (oldPassword !== "" || password !== "" || repassword !== "") {
+        if (password !== repassword) {
+            document.getElementById("password").style.borderColor = "#E34234";
+            document.getElementById("repassword").style.borderColor = "#E34234";
+            alert("Passwords do not match. Please key again.");
+            return;
+        } else if (password.length < 8) {
+            alert("Password too short. Must be at least 8 characters.");
+            return;
         }
+
+        const verifyPayload = { id: member.id, password: oldPassword };
+
+        const verifyResult = await fetch('/api/verifyPassword', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + authToken
+            },
+            body: JSON.stringify(verifyPayload)
+        }).then(res => res.json()).catch(err => {
+            console.error(err);
+            alert("Failed to verify password.");
+            ok = false;
+        });
+
+        if (!verifyResult || !verifyResult.success) {
+            alert("Old password is incorrect.");
+            return;
+        }
+    }
+
+    // ✅ Prepare update data
+    const updateData = {
+        email: document.getElementById("email").value,
+        name: document.getElementById("name").value,
+        phone: document.getElementById("phone").value,
+        country: document.getElementById("country").value,
+        address: document.getElementById("address").value,
+        securityQuestion: document.getElementById("securityQuestion").value,
+        securityAnswer: document.getElementById("securityAnswer").value,
+        age: document.getElementById("age").value,
+        income: document.getElementById("income").value,
+        sla: document.getElementById("serviceLevelAgreement").checked ? 1 : 0,
+        password: password
+    };
+
+    if (password && password !== "") {
+        updateData.oldPassword = oldPassword;
+    }
+
+    // 🔁 Send update request
+    fetch('/api/updateMember', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + authToken
+        },
+        body: JSON.stringify(updateData)
+    })
+        .then(async res => {
+            if (!res.ok) {
+                const errText = await res.text();
+                throw new Error(errText);
+            }
+            return res.json();
+        })
+        .then(data => {
+            // ✅ Update sessionStorage
+            sessionStorage.setItem("member", JSON.stringify(data));
+            sessionStorage.setItem("memberName", data.name);
+            sessionStorage.setItem("memberEmail", data.email);
+
+            // ✅ Update welcome message DOM (if exists)
+            const welcomeEl = document.getElementById("memberName");
+            if (welcomeEl) {
+                welcomeEl.innerText = "Welcome " + data.name + "!";
+            }
+
+            alert("Your profile has been updated!");
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Error: " + err.message);
+        });
+}
+
 
         function pdpaWindow() {
             var myWindow = window.open("pdpa.html");
